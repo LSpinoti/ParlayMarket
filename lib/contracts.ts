@@ -4,13 +4,16 @@ import abis from '../contracts/abis.json';
 export const CONTRACT_ADDRESSES = {
   // Flare Testnet (Coston2)
   coston2: {
-    ParlayMarket: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
-    MockOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    ParlayMarket: '0xa95fEBb5f7A256FCB1b317F94c41F346a8735d15', // TODO: Update after deployment
+    FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
+    MockOracle: '0x7eB457DaBDFdCa2D9fD39acA6f7B9A87dA4DE911', // DEPRECATED: For testing only
   },
   // Flare Mainnet
   flare: {
     ParlayMarket: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
-    Oracle: '0x0000000000000000000000000000000000000000', // TODO: Update with real oracle
+    FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
   },
 };
 

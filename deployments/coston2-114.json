@@ -1,0 +1,14 @@
+{
+  "network": "coston2",
+  "chainId": "114",
+  "deployer": "0x04D65f23D3d7bb3DF854D0c22d58e24802f84d29",
+  "timestamp": "2025-11-22T05:06:51.201Z",
+  "contracts": {
+    "oracle": {
+      "type": "Mock",
+      "address": "0x7eB457DaBDFdCa2D9fD39acA6f7B9A87dA4DE911"
+    },
+    "parlayMarket": "0xa95fEBb5f7A256FCB1b317F94c41F346a8735d15",
+    "parlayToken": "0x697BDdE9c64c7EbFf752c042B256C50850e6C346"
+  }
+}

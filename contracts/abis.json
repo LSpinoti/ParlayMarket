@@ -23,6 +23,24 @@
     "function setApprovalForAll(address operator, bool approved) external",
     "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
   ],
+  "FlarePolymarketOracle": [
+    "function submitOutcome(bytes32 umaId, uint8 outcome, bytes calldata attestationData, bytes32[] calldata merkleProof) external",
+    "function setOutcomeDirect(bytes32 umaId, uint8 outcome) external",
+    "function setOutcomesBatch(bytes32[] calldata umaIds, uint8[] calldata outcomes) external",
+    "function getOutcome(bytes32 umaId) external view returns (bool resolved, uint8 outcome)",
+    "function isResolved(bytes32 umaId) external view returns (bool)",
+    "function getOutcomeDetails(bytes32 umaId) external view returns (bool resolved, uint8 outcome, uint256 timestamp)",
+    "function addAttestor(address attestor) external",
+    "function removeAttestor(address attestor) external",
+    "function transferOwnership(address newOwner) external",
+    "function fdcVerification() external view returns (address)",
+    "function owner() external view returns (address)",
+    "function attestors(address) external view returns (bool)",
+    "event OutcomeVerified(bytes32 indexed umaId, uint8 outcome, uint256 timestamp, address attestor)",
+    "event AttestorAdded(address indexed attestor)",
+    "event AttestorRemoved(address indexed attestor)",
+    "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
+  ],
   "MockPolymarketOracle": [
     "function setOutcome(bytes32 umaId, uint8 outcome) external",
     "function setOutcomes(bytes32[] calldata umaIds, uint8[] calldata outcomes) external",

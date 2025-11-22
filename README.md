@@ -24,7 +24,8 @@ ParlayMarket allows users to:
 - **Solidity 0.8.20**
 - **ParlayMarket** - Main contract managing parlay lifecycle
 - **ParlayToken** - ERC-721 for tradable positions
-- **MockPolymarketOracle** - Test oracle (replace with real Flare Data Connector)
+- **FlarePolymarketOracle** - Production oracle using Flare Data Connector (FDC)
+- **MockPolymarketOracle** - (Deprecated) Test oracle for manual testing
 
 ### Frontend
 - **Next.js 16** (App Router)
@@ -96,7 +97,8 @@ parlaymarket/
 ├── contracts/               # Solidity smart contracts
 │   ├── ParlayMarket.sol     # Main parlay contract
 │   ├── ParlayToken.sol      # ERC-721 position tokens
-│   ├── MockPolymarketOracle.sol  # Test oracle
+│   ├── FlarePolymarketOracle.sol  # FDC-integrated oracle
+│   ├── MockPolymarketOracle.sol   # (Deprecated) Test oracle
 │   └── interfaces/          # Contract interfaces
 ├── hooks/                   # React hooks
 │   ├── useWeb3.ts          # Web3 connection hook
@@ -180,14 +182,48 @@ npx hardhat test
 forge test
 ```
 
-### Mock Oracle for Testing
+### Flare Data Connector Integration
 
-On testnet, use `MockPolymarketOracle` to manually set outcomes:
+**FlarePolymarketOracle** integrates with Flare's Data Connector (FDC) to fetch and verify Polymarket UMA resolution data on-chain.
+
+#### Production Usage (with FDC)
 
 ```javascript
 const oracle = new ethers.Contract(ORACLE_ADDRESS, ABI, signer);
-await oracle.setOutcome(umaId, 1); // 1 = YES, 0 = NO, 2 = INVALID
+
+// Submit outcome with FDC attestation
+await oracle.submitOutcome(
+  umaId,              // Polymarket UMA question ID
+  outcome,            // 0=NO, 1=YES, 2=INVALID
+  attestationData,    // FDC attestation data
+  merkleProof         // Merkle proof for verification
+);
 ```
+
+#### Testing Mode (Direct Setting)
+
+For testing without FDC attestation, the oracle owner can set outcomes directly:
+
+```javascript
+const oracle = new ethers.Contract(ORACLE_ADDRESS, ABI, signer);
+
+// Direct outcome setting (owner only)
+await oracle.setOutcomeDirect(umaId, 1); // 1 = YES, 0 = NO, 2 = INVALID
+
+// Batch setting
+await oracle.setOutcomesBatch([umaId1, umaId2], [1, 0]);
+```
+
+#### FDC Attestation Workflow
+
+1. **Submit Attestation Request** to FDC Hub for Polymarket UMA data
+2. **Wait for Finalization** (typically ~90 seconds on Coston2)
+3. **Retrieve Attestation Data** from Data Availability Layer
+4. **Submit to Oracle** with proof using `submitOutcome()`
+5. **Oracle Verifies** proof via FDC Verification contract
+6. **Outcome Stored** and available for parlay resolution
+
+For detailed FDC integration guide, see [Flare FDC Documentation](https://dev.flare.network/fdc/overview).
 
 ## Security Considerations
 
@@ -199,9 +235,11 @@ Before mainnet deployment:
 - [ ] Implement pause mechanism
 - [ ] Add access control for admin functions
 - [ ] Gas optimization
-- [ ] Replace MockOracle with real Flare Data Connector
+- [x] Replace MockOracle with real Flare Data Connector
 - [ ] Add slippage protection
 - [ ] Implement proper error handling
+- [ ] Set up automated FDC attestation service
+- [ ] Add fallback mechanisms for FDC downtime
 
 ## Roadmap
 

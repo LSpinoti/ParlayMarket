@@ -5,7 +5,9 @@ import "./interfaces/IPolymarketOracle.sol";
 
 /**
  * @title MockPolymarketOracle
- * @notice Mock oracle for testing - allows manual outcome setting
+ * @notice DEPRECATED: Mock oracle for testing - allows manual outcome setting
+ * @dev This contract is deprecated. Use FlarePolymarketOracle for production.
+ *      Only use this for local testing when FDC attestation is not available.
  */
 contract MockPolymarketOracle is IPolymarketOracle {
     struct Outcome {

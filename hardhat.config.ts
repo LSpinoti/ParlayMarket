@@ -14,19 +14,30 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  // Configure ts-node to use CommonJS
+  // @ts-ignore
+  "ts-node": {
+    transpileOnly: true,
+    compilerOptions: {
+      module: "commonjs",
+    },
+  },
   networks: {
-    hardhat: {
-      chainId: 31337,
-    },
-    coston2: {
-      url: "https://coston2-api.flare.network/ext/C/rpc",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 114,
-    },
+    // Flare Mainnet
     flare: {
       url: "https://flare-api.flare.network/ext/C/rpc",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 14,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+    // Coston2 Testnet
+    coston2: {
+      url: "https://coston2-api.flare.network/ext/C/rpc",
+      chainId: 114,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+    // Local Hardhat network
+    hardhat: {
+      chainId: 31337,
     },
   },
   paths: {
@@ -35,7 +46,15 @@ const config: HardhatUserConfig = {
     cache: "./cache",
     artifacts: "./artifacts",
   },
+  typechain: {
+    outDir: "typechain-types",
+    target: "ethers-v6",
+  },
+  // Use separate tsconfig for Hardhat
+  // @ts-ignore
+  typescript: {
+    tsconfig: "./tsconfig.hardhat.json",
+  },
 };
 
 export default config;
-

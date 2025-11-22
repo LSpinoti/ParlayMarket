@@ -1,9 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWeb3 } from '@/hooks/useWeb3';
 import { getParlayMarketContract, parseEther } from '@/lib/web3';
+import { 
+  fetchSimplifiedMarkets, 
+  SimplifiedMarket,
+  conditionIdToBytes32,
+  formatMarketEndDate
+} from '@/lib/polymarket';
 
 interface MarketLeg {
   umaId: string;
@@ -24,6 +30,49 @@ export default function CreateParlayPage() {
   const [takerStake, setTakerStake] = useState('');
   const [makerIsYes, setMakerIsYes] = useState(true);
   const [expiryDays, setExpiryDays] = useState('7');
+
+  // Polymarket integration state
+  const [markets, setMarkets] = useState<SimplifiedMarket[]>([]);
+  const [isLoadingMarkets, setIsLoadingMarkets] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showMarketBrowser, setShowMarketBrowser] = useState(false);
+
+  // Fetch markets on component mount
+  useEffect(() => {
+    loadMarkets();
+  }, []);
+
+  const loadMarkets = async () => {
+    setIsLoadingMarkets(true);
+    const fetchedMarkets = await fetchSimplifiedMarkets({ limit: 100 });
+    setMarkets(fetchedMarkets);
+    setIsLoadingMarkets(false);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadMarkets();
+      return;
+    }
+    
+    setIsLoadingMarkets(true);
+    const searchResults = await fetchSimplifiedMarkets({ 
+      searchQuery: searchQuery.trim(),
+      limit: 50 
+    });
+    setMarkets(searchResults);
+    setIsLoadingMarkets(false);
+  };
+
+  const addMarketToParlay = (market: SimplifiedMarket, outcome: 'yes' | 'no') => {
+    const newLeg: MarketLeg = {
+      umaId: conditionIdToBytes32(market.conditionId),
+      requiredOutcome: outcome === 'yes' ? 1 : 0,
+      description: market.question,
+    };
+    setLegs([...legs, newLeg]);
+    setShowMarketBrowser(false);
+  };
 
   const addLeg = () => {
     setLegs([...legs, { umaId: '', requiredOutcome: 1, description: '' }]);
@@ -100,16 +149,120 @@ export default function CreateParlayPage() {
       )}
 
       <div className="space-y-6">
+        {/* Market Browser */}
+        {showMarketBrowser && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-gray-900 border border-gray-700 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-gray-700">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Browse Polymarket Markets</h2>
+                  <button
+                    onClick={() => setShowMarketBrowser(false)}
+                    className="text-gray-400 hover:text-white text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Search markets (e.g., Bitcoin, Trump, Election)..."
+                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                {isLoadingMarkets ? (
+                  <div className="text-center py-12 text-gray-400">
+                    Loading markets...
+                  </div>
+                ) : markets.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    No markets found
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {markets.map((market) => (
+                      <div
+                        key={market.id}
+                        className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
+                      >
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold mb-1">{market.question}</h3>
+                            {market.description && (
+                              <p className="text-sm text-gray-400 mb-2 line-clamp-2">
+                                {market.description}
+                              </p>
+                            )}
+                            <div className="flex gap-4 text-xs text-gray-500">
+                              {market.category && (
+                                <span className="px-2 py-1 bg-gray-700 rounded">
+                                  {market.category}
+                                </span>
+                              )}
+                              <span>Ends: {formatMarketEndDate(market.endDate)}</span>
+                              {market.volume && (
+                                <span>Vol: ${(market.volume / 1000).toFixed(0)}k</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => addMarketToParlay(market, 'yes')}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors min-w-[80px]"
+                            >
+                              YES
+                              <div className="text-xs opacity-80">{(market.yesPrice * 100).toFixed(0)}¢</div>
+                            </button>
+                            <button
+                              onClick={() => addMarketToParlay(market, 'no')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold transition-colors min-w-[80px]"
+                            >
+                              NO
+                              <div className="text-xs opacity-80">{(market.noPrice * 100).toFixed(0)}¢</div>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Market Legs */}
         <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">Market Legs</h2>
-            <button
-              onClick={addLeg}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
-            >
-              + Add Leg
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowMarketBrowser(true)}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors"
+              >
+                📊 Browse Markets
+              </button>
+              <button
+                onClick={addLeg}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
+              >
+                + Manual Entry
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
