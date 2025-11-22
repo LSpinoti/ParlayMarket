@@ -35,6 +35,11 @@ export default function ParlayDetailPage() {
   const isExpired = parlay.expiry * 1000 < Date.now();
   const isMaker = account?.toLowerCase() === parlay.maker.toLowerCase();
   const isTaker = account?.toLowerCase() === parlay.taker.toLowerCase();
+  const userSide = isMaker 
+    ? (parlay.makerIsYes ? 'YES' : 'NO')
+    : isTaker 
+    ? (parlay.makerIsYes ? 'NO' : 'YES')
+    : null;
 
   console.log("parlay + status", parlay, status);
   
@@ -180,16 +185,63 @@ export default function ParlayDetailPage() {
           </div>
         )}
 
+        {/* User Position Indicator */}
+        {(isMaker || isTaker) && userSide && (
+          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-300 text-sm mb-1">Your Position</div>
+                <div className="text-lg font-semibold text-white">
+                  You are on the <span className={`font-bold ${
+                    userSide === 'YES' ? 'text-green-400' : 'text-red-400'
+                  }`}>{userSide}</span> side
+                  {isMaker && <span className="text-gray-400 text-sm ml-2">(Maker)</span>}
+                  {isTaker && <span className="text-gray-400 text-sm ml-2">(Taker)</span>}
+                </div>
+              </div>
+              <div className={`px-4 py-2 rounded-lg font-bold text-lg ${
+                userSide === 'YES' 
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+                {userSide}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Participants */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-            <div className="text-gray-400 text-sm mb-1">Maker {parlay.makerIsYes ? '(YES)' : '(NO)'}</div>
+          <div className={`p-4 rounded-lg border ${
+            isMaker 
+              ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' 
+              : 'bg-gray-900/50 border-gray-700'
+          }`}>
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-gray-400 text-sm">Maker {parlay.makerIsYes ? '(YES)' : '(NO)'}</div>
+              {isMaker && (
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  You
+                </span>
+              )}
+            </div>
             <div className="font-mono text-sm">{parlay.maker}</div>
             <div className="text-lg font-bold mt-2">{formatEther(parlay.makerStake)} FLR</div>
           </div>
 
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-            <div className="text-gray-400 text-sm mb-1">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
+          <div className={`p-4 rounded-lg border ${
+            isTaker 
+              ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' 
+              : 'bg-gray-900/50 border-gray-700'
+          }`}>
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-gray-400 text-sm">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
+              {isTaker && (
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  You
+                </span>
+              )}
+            </div>
             <div className="font-mono text-sm">
               {parlay.taker === '0x0000000000000000000000000000000000000000' ? 'Waiting...' : parlay.taker}
             </div>

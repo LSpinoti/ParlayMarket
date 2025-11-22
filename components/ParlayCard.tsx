@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ParlayData, getParlayStatusString, getOutcomeString } from '@/lib/contracts';
 import { formatEther } from 'ethers';
+import { useWeb3 } from '@/hooks/useWeb3';
 
 interface ParlayCardProps {
   parlay: ParlayData;
@@ -11,9 +12,20 @@ interface ParlayCardProps {
 
 export default function ParlayCard({ parlay }: ParlayCardProps) {
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+  const { account } = useWeb3();
   const status = getParlayStatusString(parlay.status);
   const totalPayout = parlay.makerStake + parlay.takerStake;
   const isExpired = parlay.expiry * 1000 < Date.now();
+  
+  // Determine if user is in this parlay and which side they're on
+  const isMaker = account?.toLowerCase() === parlay.maker.toLowerCase();
+  const isTaker = account?.toLowerCase() === parlay.taker.toLowerCase();
+  const isInParlay = isMaker || isTaker;
+  const userSide = isMaker 
+    ? (parlay.makerIsYes ? 'YES' : 'NO')
+    : isTaker 
+    ? (parlay.makerIsYes ? 'NO' : 'YES')
+    : null;
   
   // Determine the display status text
   const displayStatus = status === 'Created' 
@@ -105,29 +117,48 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
         )}
 
         <div className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Legs:</span>
-            <span className="text-white font-semibold">{parlay.conditionIds?.length || 0}</span>
-          </div>
-
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Maker Stake:</span>
-            <span className="text-white">{formatEther(parlay.makerStake)} FLR</span>
-          </div>
-
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Taker Stake:</span>
-            <span className="text-white">{formatEther(parlay.takerStake)} FLR</span>
-          </div>
-
-          {status === 'Created' && (
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Expires:</span>
-              <span className={isExpired ? 'text-red-500' : 'text-white'}>
-                {new Date(parlay.expiry * 1000).toLocaleString()}
+          {isInParlay && userSide && (
+            <div className="flex justify-between items-center text-sm mb-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/30">
+              <span className="text-gray-300">Your Position:</span>
+              <span className={`px-2 py-1 rounded font-semibold ${
+                userSide === 'YES' 
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+                {userSide}
               </span>
             </div>
           )}
+          
+          <div className="grid grid-cols-2 gap-x-8">
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Legs:</span>
+                <span className="text-white font-semibold">{parlay.conditionIds?.length || 0}</span>
+              </div>
+
+              {status === 'Created' && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Expires:</span>
+                  <span className={isExpired ? 'text-red-500' : 'text-white'}>
+                    {new Date(parlay.expiry * 1000).toISOString().slice(0, 10)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Maker Stake:</span>
+                <span className="text-white">{formatEther(parlay.makerStake)} FLR</span>
+              </div>
+
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Taker Stake:</span>
+                <span className="text-white">{formatEther(parlay.takerStake)} FLR</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Link>
