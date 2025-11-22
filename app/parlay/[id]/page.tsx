@@ -35,6 +35,11 @@ export default function ParlayDetailPage() {
   const isExpired = parlay.expiry * 1000 < Date.now();
   const isMaker = account?.toLowerCase() === parlay.maker.toLowerCase();
   const isTaker = account?.toLowerCase() === parlay.taker.toLowerCase();
+  
+  // Determine the display status text
+  const displayStatus = status === 'Created' 
+    ? `Waiting for ${parlay.makerIsYes ? 'NO' : 'YES'} taker`
+    : status;
 
   const handleFill = async () => {
     if (!isConnected) {
@@ -144,14 +149,16 @@ export default function ParlayDetailPage() {
       <div className="p-8 bg-gray-800/50 border border-gray-700 rounded-xl">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Parlay #{parlay.id}</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              {parlay.name || `Parlay #${parlay.id}`}
+            </h1>
             <span className={`px-4 py-2 rounded-full text-sm font-semibold inline-block ${
               status === 'Created' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
               status === 'Filled' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
               status === 'Resolved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
               'bg-gray-500/10 text-gray-500 border border-gray-500/20'
             }`}>
-              {status}
+              {displayStatus}
             </span>
           </div>
           <div className="text-right">
@@ -187,23 +194,44 @@ export default function ParlayDetailPage() {
         <div className="mb-6">
           <h2 className="text-xl font-bold mb-4">Market Legs ({parlay.conditionIds?.length || 0})</h2>
           <div className="space-y-3">
-            {parlay.conditionIds?.map((conditionId, idx) => (
-              <div key={idx} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-gray-400 text-sm">Leg {idx + 1}</div>
-                    <div className="font-mono text-xs mt-1 text-gray-500">{conditionId}</div>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    parlay.requiredOutcomes?.[idx] === 1
-                      ? 'bg-green-500/10 text-green-500'
-                      : 'bg-red-500/10 text-red-500'
-                  }`}>
-                    Required: {getOutcomeString(parlay.requiredOutcomes?.[idx] || 0)}
+            {parlay.conditionIds?.map((conditionId, idx) => {
+              const imageUrl = parlay.imageUrls?.[idx];
+              const legName = parlay.legNames?.[idx] || '';
+              return (
+                <div key={idx} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+                  <div className="flex gap-4 items-start">
+                    {imageUrl && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={imageUrl}
+                          alt={`Market leg ${idx + 1}`}
+                          className="w-20 h-20 rounded-lg object-cover bg-gray-700 border border-gray-600"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 flex justify-between items-start">
+                      <div>
+                        <div className="text-gray-400 text-sm">Leg {idx + 1}</div>
+                        {legName && (
+                          <div className="text-white font-semibold mt-1">{legName}</div>
+                        )}
+                        <div className="font-mono text-xs mt-1 text-gray-500">{conditionId}</div>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        parlay.requiredOutcomes?.[idx] === 1
+                          ? 'bg-green-500/10 text-green-500'
+                          : 'bg-red-500/10 text-red-500'
+                      }`}>
+                        Required: {getOutcomeString(parlay.requiredOutcomes?.[idx] || 0)}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

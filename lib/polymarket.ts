@@ -66,6 +66,7 @@ export interface SimplifiedMarket {
   yesPrice: number;
   noPrice: number;
   isActive: boolean;
+  image?: string;
   category?: string;
   volume?: number;
   resolved?: boolean;
@@ -207,15 +208,16 @@ export async function fetchMarketByConditionId(conditionId: string): Promise<Pol
  */
 export function simplifyMarket(market: PolymarketMarket): SimplifiedMarket {
   // Parse outcomes and prices
-  const outcomes = market.outcomes ? market.outcomes.split(',') : [];
-  const prices = market.outcomePrices ? market.outcomePrices.split(',') : [];
+  const outcomes = market.outcomes ? JSON.parse(market.outcomes) : [];
+  const prices = market.outcomePrices ? JSON.parse(market.outcomePrices) : [];
   
+  console.log(outcomes, prices);
   // Find YES and NO outcomes
-  const yesIndex = outcomes.findIndex(o => 
-    o.toLowerCase() === 'yes' || o.toLowerCase() === 'true'
+  const yesIndex = outcomes.findIndex((o: string) => 
+    o.toLowerCase().includes('yes') || o.toLowerCase().includes('true')
   );
-  const noIndex = outcomes.findIndex(o => 
-    o.toLowerCase() === 'no' || o.toLowerCase() === 'false'
+  const noIndex = outcomes.findIndex((o: string) => 
+    o.toLowerCase().includes('no') || o.toLowerCase().includes('false')
   );
 
   const yesPrice = yesIndex !== -1 && prices[yesIndex] ? parseFloat(prices[yesIndex]) : 0.5;
@@ -227,6 +229,7 @@ export function simplifyMarket(market: PolymarketMarket): SimplifiedMarket {
     question: market.question,
     description: market.description || '',
     endDate: market.endDateIso || market.endDate,
+    image: market.image,
     yesPrice,
     noPrice,
     isActive: market.active && !market.closed && (market.acceptingOrders !== false),
