@@ -4,9 +4,9 @@ import abis from '../contracts/abis.json';
 export const CONTRACT_ADDRESSES = {
   // Flare Testnet (Coston2)
   coston2: {
-    ParlayMarket: '0x7E7e9a7452c40eb09B61b4E7cF5aa9D4BA071773',
-    ParlayToken: '0x6c0646517538dC30Cf65C8280cD89b10FCfaA95D',
-    FlarePolymarketOracle: '0xE8Ece63CB5934e8135a8F533106f46d439cAd2eC',
+    ParlayMarket: '0x0939b59C16ce14576747991928ac24F70EfF2443',
+    ParlayToken: '0x14066F227cDfD359a022713626E815D3c359b707',
+    FlarePolymarketOracle: '0x56E3Bd2e7EbF1A3057f104a3a71cBCD4Eb0b2694',
     FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
   },
   // Flare Mainnet
