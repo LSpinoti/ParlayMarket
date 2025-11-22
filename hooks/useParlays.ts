@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getParlayMarketContract } from '@/lib/web3';
+import { getParlayMarketContract, getParlayTokenIds } from '@/lib/web3';
 import { ParlayData, ChainName } from '@/lib/contracts';
 
 export function useParlays(chain: ChainName = 'coston2') {
@@ -69,6 +69,13 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
       const contract = await getParlayMarketContract(chain);
       const data = await contract.getParlay(parlayId);
       
+      // Fetch token IDs if parlay is filled
+      let tokenIds = { yesTokenId: null, noTokenId: null };
+      const status = Number(data.status);
+      if (status === 1 || status === 2) { // Filled or Resolved
+        tokenIds = await getParlayTokenIds(parlayId, chain);
+      }
+      
       setParlay({
         id: parlayId,
         maker: data.maker,
@@ -78,8 +85,10 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
         makerStake: data.makerStake,
         takerStake: data.takerStake,
         expiry: Number(data.expiry),
-        status: Number(data.status),
+        status: status,
         makerIsYes: data.makerIsYes,
+        yesTokenId: tokenIds.yesTokenId,
+        noTokenId: tokenIds.noTokenId,
       });
     } catch (err: any) {
       console.error('Error fetching parlay:', err);

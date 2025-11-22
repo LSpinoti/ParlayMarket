@@ -5,6 +5,7 @@
     "function cancelParlay(uint256 parlayId) external",
     "function resolveParlay(uint256 parlayId) external",
     "function getParlay(uint256 parlayId) external view returns (address maker, address taker, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes)",
+    "function parlays(uint256 parlayId) external view returns (uint256 id, address maker, address taker, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes, uint256 yesTokenId, uint256 noTokenId)",
     "function getTotalParlays() external view returns (uint256)",
     "function parlayToken() external view returns (address)",
     "event ParlayCreated(uint256 indexed parlayId, address indexed maker, bytes32[] conditionIds, uint8[] requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, bool makerIsYes)",

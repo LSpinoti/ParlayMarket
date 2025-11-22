@@ -59,6 +59,8 @@ export interface ParlayData {
   expiry: number;
   status: number;
   makerIsYes: boolean;
+  yesTokenId?: string | null;
+  noTokenId?: string | null;
 }
 
 export function getParlayStatusString(status: number): ParlayStatus {

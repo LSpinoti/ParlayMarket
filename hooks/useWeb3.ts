@@ -34,7 +34,13 @@ export function useWeb3() {
       setAccount(addr);
       return addr;
     } catch (err: any) {
-      const message = err.message || 'Failed to connect wallet';
+      let message = err.message || 'Failed to connect wallet';
+      
+      // Don't show MetaMask not installed error - handled by WalletConnect component
+      if (message === 'METAMASK_NOT_INSTALLED') {
+        message = 'Please install MetaMask to continue';
+      }
+      
       setError(message);
       throw err;
     } finally {

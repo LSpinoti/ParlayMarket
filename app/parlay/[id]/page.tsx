@@ -5,8 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useParlay } from '@/hooks/useParlays';
 import { useWeb3 } from '@/hooks/useWeb3';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { getParlayStatusString, getOutcomeString } from '@/lib/contracts';
-import { formatEther, parseEther, getParlayMarketContract } from '@/lib/web3';
+import { getParlayStatusString, getOutcomeString, CONTRACT_ADDRESSES } from '@/lib/contracts';
+import { formatEther, parseEther, getParlayMarketContract, importNFTToMetamask, getParlayTokenIds } from '@/lib/web3';
 
 export default function ParlayDetailPage() {
   const params = useParams();
@@ -50,7 +50,28 @@ export default function ParlayDetailPage() {
       const tx = await contract.fillParlay(parlayId, {
         value: parlay.takerStake,
       });
-      await tx.wait();
+      const receipt = await tx.wait();
+      
+      // Get token IDs from the event
+      const tokenIds = await getParlayTokenIds(parlayId, 'coston2');
+      
+      // Prompt Metamask to import the NFT for the taker
+      if (tokenIds.yesTokenId || tokenIds.noTokenId) {
+        const tokenAddress = CONTRACT_ADDRESSES.coston2.ParlayToken;
+        
+        // Taker gets the opposite side of maker
+        const takerTokenId = parlay.makerIsYes ? tokenIds.noTokenId : tokenIds.yesTokenId;
+        
+        if (takerTokenId) {
+          setTimeout(async () => {
+            const imported = await importNFTToMetamask(tokenAddress, takerTokenId);
+            if (imported) {
+              console.log('NFT imported to Metamask successfully');
+            }
+          }, 1000); // Small delay to let the transaction complete
+        }
+      }
+      
       await refresh();
     } catch (err: any) {
       console.error('Error filling parlay:', err);
@@ -91,6 +112,21 @@ export default function ParlayDetailPage() {
       setActionError(err.message || 'Failed to resolve parlay');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleImportNFT = async (tokenId: string) => {
+    try {
+      const tokenAddress = CONTRACT_ADDRESSES.coston2.ParlayToken;
+      const imported = await importNFTToMetamask(tokenAddress, tokenId);
+      if (imported) {
+        alert('NFT import request sent to Metamask!');
+      } else {
+        alert('NFT import was cancelled or failed');
+      }
+    } catch (err: any) {
+      console.error('Error importing NFT:', err);
+      setActionError(err.message || 'Failed to import NFT');
     }
   };
 
@@ -178,6 +214,48 @@ export default function ParlayDetailPage() {
             <div className={`text-lg font-semibold ${isExpired ? 'text-red-500' : 'text-white'}`}>
               {new Date(parlay.expiry * 1000).toLocaleString()}
               {isExpired && ' (Expired)'}
+            </div>
+          </div>
+        )}
+
+        {/* NFT Token IDs */}
+        {(status === 'Filled' || status === 'Resolved') && (parlay.yesTokenId || parlay.noTokenId) && (
+          <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg mb-6">
+            <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+              <span>🎫</span> NFT Position Tokens
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {parlay.yesTokenId && (
+                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
+                  <div className="text-gray-400 text-sm mb-1">YES Token ID</div>
+                  <div className="font-mono text-lg font-bold text-green-400 mb-2">#{parlay.yesTokenId}</div>
+                  {account?.toLowerCase() === (parlay.makerIsYes ? parlay.maker : parlay.taker).toLowerCase() && (
+                    <button
+                      onClick={() => handleImportNFT(parlay.yesTokenId!)}
+                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Import to Metamask
+                    </button>
+                  )}
+                </div>
+              )}
+              {parlay.noTokenId && (
+                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
+                  <div className="text-gray-400 text-sm mb-1">NO Token ID</div>
+                  <div className="font-mono text-lg font-bold text-red-400 mb-2">#{parlay.noTokenId}</div>
+                  {account?.toLowerCase() === (parlay.makerIsYes ? parlay.taker : parlay.maker).toLowerCase() && (
+                    <button
+                      onClick={() => handleImportNFT(parlay.noTokenId!)}
+                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Import to Metamask
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 text-xs text-gray-400">
+              💡 Tip: Click "Import to Metamask" to add your NFT position to your wallet
             </div>
           </div>
         )}
