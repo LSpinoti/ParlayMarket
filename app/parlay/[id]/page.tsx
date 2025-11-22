@@ -6,7 +6,7 @@ import { useParlay } from '@/hooks/useParlays';
 import { useWeb3 } from '@/hooks/useWeb3';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getParlayStatusString, getOutcomeString, CONTRACT_ADDRESSES } from '@/lib/contracts';
-import { formatEther, parseEther, getParlayMarketContract, importNFTToMetamask, getParlayTokenIds } from '@/lib/web3';
+import { formatEther, parseEther, getParlayMarketContract, importNFTToMetamask, getParlayTokenIds, getTokenIdsFromReceipt } from '@/lib/web3';
 
 export default function ParlayDetailPage() {
   const params = useParams();
@@ -35,6 +35,8 @@ export default function ParlayDetailPage() {
   const isExpired = parlay.expiry * 1000 < Date.now();
   const isMaker = account?.toLowerCase() === parlay.maker.toLowerCase();
   const isTaker = account?.toLowerCase() === parlay.taker.toLowerCase();
+
+  console.log("parlay + status", parlay, status);
   
   // Determine the display status text
   const displayStatus = status === 'Created' 
@@ -57,8 +59,13 @@ export default function ParlayDetailPage() {
       });
       const receipt = await tx.wait();
       
-      // Get token IDs from the event
-      const tokenIds = await getParlayTokenIds(parlayId, 'coston2');
+      // Extract token IDs directly from the transaction receipt (instant, no block search!)
+      let tokenIds = await getTokenIdsFromReceipt(receipt, contract);
+      
+      // Fallback to contract read if receipt parsing fails
+      if (!tokenIds.yesTokenId || !tokenIds.noTokenId) {
+        tokenIds = await getParlayTokenIds(parlayId, 'coston2');
+      }
       
       // Prompt Metamask to import the NFT for the taker
       if (tokenIds.yesTokenId || tokenIds.noTokenId) {
