@@ -1,0 +1,34 @@
+{
+  "ParlayMarket": [
+    "function createParlay(bytes32[] calldata umaIds, uint8[] calldata requiredOutcomes, uint256 takerStake, uint256 expiry, bool makerIsYes) external payable returns (uint256)",
+    "function fillParlay(uint256 parlayId) external payable",
+    "function cancelParlay(uint256 parlayId) external",
+    "function resolveParlay(uint256 parlayId) external",
+    "function getParlay(uint256 parlayId) external view returns (address maker, address taker, bytes32[] memory umaIds, uint8[] memory requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes)",
+    "function getTotalParlays() external view returns (uint256)",
+    "function parlayToken() external view returns (address)",
+    "event ParlayCreated(uint256 indexed parlayId, address indexed maker, bytes32[] umaIds, uint8[] requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, bool makerIsYes)",
+    "event ParlayFilled(uint256 indexed parlayId, address indexed taker, uint256 yesTokenId, uint256 noTokenId)",
+    "event ParlayCancelled(uint256 indexed parlayId)",
+    "event ParlayResolved(uint256 indexed parlayId, bool yesWins, address winner, uint256 payout)",
+    "event ParlayInvalidated(uint256 indexed parlayId)"
+  ],
+  "ParlayToken": [
+    "function ownerOf(uint256 tokenId) external view returns (address)",
+    "function balanceOf(address owner) external view returns (uint256)",
+    "function tokenToParlayId(uint256 tokenId) external view returns (uint256)",
+    "function tokenSide(uint256 tokenId) external view returns (bool)",
+    "function transferFrom(address from, address to, uint256 tokenId) external",
+    "function approve(address to, uint256 tokenId) external",
+    "function setApprovalForAll(address operator, bool approved) external",
+    "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+  ],
+  "MockPolymarketOracle": [
+    "function setOutcome(bytes32 umaId, uint8 outcome) external",
+    "function setOutcomes(bytes32[] calldata umaIds, uint8[] calldata outcomes) external",
+    "function getOutcome(bytes32 umaId) external view returns (bool resolved, uint8 outcome)",
+    "function isResolved(bytes32 umaId) external view returns (bool)",
+    "event OutcomeSet(bytes32 indexed umaId, uint8 outcome)"
+  ]
+}
+
