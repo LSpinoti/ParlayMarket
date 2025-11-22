@@ -14,7 +14,18 @@ export function useParlays(chain: ChainName = 'coston2') {
     setError(null);
     try {
       const contract = await getParlayMarketContract(chain);
-      const totalParlays = await contract.getTotalParlays();
+      
+      // Check if contract has the function (for backwards compatibility)
+      let totalParlays;
+      try {
+        totalParlays = await contract.getTotalParlays();
+      } catch (err: any) {
+        if (err.code === 'BAD_DATA' || err.message?.includes('could not decode')) {
+          throw new Error('Contract needs to be redeployed. The deployed contract is missing the getTotalParlays function. Please redeploy the updated contract.');
+        }
+        throw err;
+      }
+      
       const total = Number(totalParlays);
 
       const parlayPromises: Promise<ParlayData>[] = [];
@@ -24,8 +35,11 @@ export function useParlays(chain: ChainName = 'coston2') {
             id: i,
             maker: data.maker,
             taker: data.taker,
+            name: data.name || '',
             conditionIds: data.conditionIds || [],
             requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
+            legNames: data.legNames || [],
+            imageUrls: data.imageUrls || [],
             makerStake: data.makerStake,
             takerStake: data.takerStake,
             expiry: Number(data.expiry),
@@ -70,7 +84,7 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
       const data = await contract.getParlay(parlayId);
       
       // Fetch token IDs if parlay is filled
-      let tokenIds = { yesTokenId: null, noTokenId: null };
+      let tokenIds: { yesTokenId: string | null; noTokenId: string | null } = { yesTokenId: null, noTokenId: null };
       const status = Number(data.status);
       if (status === 1 || status === 2) { // Filled or Resolved
         tokenIds = await getParlayTokenIds(parlayId, chain);
@@ -80,8 +94,11 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
         id: parlayId,
         maker: data.maker,
         taker: data.taker,
+        name: data.name || '',
         conditionIds: data.conditionIds || [],
         requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
+        legNames: data.legNames || [],
+        imageUrls: data.imageUrls || [],
         makerStake: data.makerStake,
         takerStake: data.takerStake,
         expiry: Number(data.expiry),

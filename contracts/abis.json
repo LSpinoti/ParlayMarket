@@ -1,14 +1,14 @@
 {
   "ParlayMarket": [
-    "function createParlay(bytes32[] calldata conditionIds, uint8[] calldata requiredOutcomes, uint256 takerStake, uint256 expiry, bool makerIsYes) external payable returns (uint256)",
+    "function createParlay(string calldata name, bytes32[] calldata conditionIds, uint8[] calldata requiredOutcomes, string[] calldata legNames, string[] calldata imageUrls, uint256 takerStake, uint256 expiry, bool makerIsYes) external payable returns (uint256)",
     "function fillParlay(uint256 parlayId) external payable",
     "function cancelParlay(uint256 parlayId) external",
     "function resolveParlay(uint256 parlayId) external",
-    "function getParlay(uint256 parlayId) external view returns (address maker, address taker, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes)",
-    "function parlays(uint256 parlayId) external view returns (uint256 id, address maker, address taker, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes, uint256 yesTokenId, uint256 noTokenId)",
+    "function getParlay(uint256 parlayId) external view returns (address maker, address taker, string memory name, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, string[] memory legNames, string[] memory imageUrls, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes)",
+    "function parlays(uint256 parlayId) external view returns (uint256 id, address maker, address taker, string memory name, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, string[] memory legNames, string[] memory imageUrls, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes, uint256 yesTokenId, uint256 noTokenId)",
     "function getTotalParlays() external view returns (uint256)",
     "function parlayToken() external view returns (address)",
-    "event ParlayCreated(uint256 indexed parlayId, address indexed maker, bytes32[] conditionIds, uint8[] requiredOutcomes, uint256 makerStake, uint256 takerStake, uint256 expiry, bool makerIsYes)",
+    "event ParlayCreated(uint256 indexed parlayId, address indexed maker, string name, bytes32[] conditionIds, uint8[] requiredOutcomes, string[] legNames, string[] imageUrls, uint256 makerStake, uint256 takerStake, uint256 expiry, bool makerIsYes)",
     "event ParlayFilled(uint256 indexed parlayId, address indexed taker, uint256 yesTokenId, uint256 noTokenId)",
     "event ParlayCancelled(uint256 indexed parlayId)",
     "event ParlayResolved(uint256 indexed parlayId, bool yesWins, address winner, uint256 payout)",
