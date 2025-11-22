@@ -10,25 +10,43 @@ export interface PolymarketToken {
 }
 
 export interface PolymarketMarket {
-  condition_id: string;
-  question_id: string;
+  id: string;
   question: string;
+  conditionId: string;
+  questionID?: string;
+  slug?: string;
   description?: string;
-  end_date_iso: string;
-  game_start_time?: string;
+  endDate: string;
+  endDateIso?: string;
+  startDate?: string;
+  startDateIso?: string;
+  gameStartTime?: string;
   active: boolean;
   closed: boolean;
   archived: boolean;
-  accepting_orders: boolean;
-  tokens: PolymarketToken[];
+  acceptingOrders?: boolean;
+  outcomes: string;
+  outcomePrices: string;
+  category?: string;
+  volume?: string;
+  volumeNum?: number;
+  liquidity?: string;
+  liquidityNum?: number;
+  image?: string;
+  icon?: string;
+  fee?: string;
+  marketType?: string;
+  clobTokenIds?: string;
+  tokens?: PolymarketToken[];
   markets?: Array<{
     market_slug: string;
     outcome: string;
   }>;
-  category?: string;
-  slug?: string;
-  volume?: string;
-  liquidity?: string;
+  // Resolution data
+  resolved?: boolean;
+  resolvedBy?: string;
+  resolutionTime?: string;
+  winningOutcome?: string;
 }
 
 export interface SimplifiedMarket {
@@ -42,6 +60,8 @@ export interface SimplifiedMarket {
   isActive: boolean;
   category?: string;
   volume?: number;
+  resolved?: boolean;
+  winningOutcome?: number; // 0 = NO, 1 = YES, 2 = INVALID/undefined
 }
 
 /**
@@ -111,7 +131,7 @@ export async function searchPolymarketMarkets(query: string): Promise<Polymarket
     }
 
     const data = await response.json();
-    return data;
+    return data.events;
   } catch (error) {
     console.error('Error searching Polymarket markets:', error);
     return [];
@@ -147,25 +167,32 @@ export async function fetchMarketByConditionId(conditionId: string): Promise<Pol
  * Convert Polymarket market to simplified format
  */
 export function simplifyMarket(market: PolymarketMarket): SimplifiedMarket {
-  // Find YES and NO tokens
-  const yesToken = market.tokens.find(t => 
-    t.outcome.toLowerCase() === 'yes' || t.outcome.toLowerCase() === 'true'
+  // Parse outcomes and prices
+  const outcomes = market.outcomes ? market.outcomes.split(',') : [];
+  const prices = market.outcomePrices ? market.outcomePrices.split(',') : [];
+  
+  // Find YES and NO outcomes
+  const yesIndex = outcomes.findIndex(o => 
+    o.toLowerCase() === 'yes' || o.toLowerCase() === 'true'
   );
-  const noToken = market.tokens.find(t => 
-    t.outcome.toLowerCase() === 'no' || t.outcome.toLowerCase() === 'false'
+  const noIndex = outcomes.findIndex(o => 
+    o.toLowerCase() === 'no' || o.toLowerCase() === 'false'
   );
 
+  const yesPrice = yesIndex !== -1 && prices[yesIndex] ? parseFloat(prices[yesIndex]) : 0.5;
+  const noPrice = noIndex !== -1 && prices[noIndex] ? parseFloat(prices[noIndex]) : 0.5;
+
   return {
-    id: market.question_id || market.condition_id,
-    conditionId: market.condition_id,
+    id: market.questionID || market.id,
+    conditionId: market.conditionId,
     question: market.question,
     description: market.description || '',
-    endDate: market.end_date_iso,
-    yesPrice: yesToken ? parseFloat(yesToken.price) : 0.5,
-    noPrice: noToken ? parseFloat(noToken.price) : 0.5,
-    isActive: market.active && market.accepting_orders && !market.closed,
+    endDate: market.endDateIso || market.endDate,
+    yesPrice,
+    noPrice,
+    isActive: market.active && !market.closed && (market.acceptingOrders !== false),
     category: market.category,
-    volume: market.volume ? parseFloat(market.volume) : undefined,
+    volume: market.volumeNum || (market.volume ? parseFloat(market.volume) : undefined),
   };
 }
 
@@ -189,18 +216,19 @@ export async function fetchSimplifiedMarkets(params?: {
         archived: false,
       });
     }
-
+    console.log(markets);
     // Filter for binary markets (Yes/No) and simplify
     return markets
       .filter(market => {
-        // Only include binary markets with Yes/No tokens
-        if (market.tokens.length !== 2) return false;
+        // Only include binary markets with Yes/No outcomes
+        const outcomes = market.outcomes ? market.outcomes.split(',') : [];
+        if (outcomes.length !== 2) return false;
         
-        const hasYes = market.tokens.some(t => 
-          t.outcome.toLowerCase() === 'yes' || t.outcome.toLowerCase() === 'true'
+        const hasYes = outcomes.some(o => 
+          o.toLowerCase() === 'yes' || o.toLowerCase() === 'true'
         );
-        const hasNo = market.tokens.some(t => 
-          t.outcome.toLowerCase() === 'no' || t.outcome.toLowerCase() === 'false'
+        const hasNo = outcomes.some(o => 
+          o.toLowerCase() === 'no' || o.toLowerCase() === 'false'
         );
         
         return hasYes && hasNo;
@@ -253,5 +281,82 @@ export function formatMarketEndDate(isoDate: string): string {
   } else {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${minutes}m`;
+  }
+}
+
+/**
+ * Check if a market is resolved and get the winning outcome
+ * @param conditionId The condition ID of the market
+ * @returns Object with resolved status and outcome (0=NO, 1=YES, 2=INVALID/undefined)
+ */
+export async function getMarketResolution(conditionId: string): Promise<{
+  resolved: boolean;
+  outcome: number; // 0 = NO, 1 = YES, 2 = INVALID
+}> {
+  try {
+    const response = await fetch(
+      `/api/polymarket/resolution?conditionIds=${encodeURIComponent(conditionId)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return { resolved: false, outcome: 2 };
+    }
+
+    const data = await response.json();
+    
+    if (data.resolutions && data.resolutions.length > 0) {
+      const resolution = data.resolutions[0];
+      return {
+        resolved: resolution.resolved,
+        outcome: resolution.outcome,
+      };
+    }
+    
+    return { resolved: false, outcome: 2 };
+  } catch (error) {
+    console.error('Error checking market resolution:', error);
+    return { resolved: false, outcome: 2 };
+  }
+}
+
+/**
+ * Batch check resolution for multiple markets
+ * @param conditionIds Array of condition IDs to check
+ * @returns Array of resolution data for each market
+ */
+export async function batchGetMarketResolutions(conditionIds: string[]): Promise<Array<{
+  conditionId: string;
+  resolved: boolean;
+  outcome: number;
+}>> {
+  try {
+    const response = await fetch(
+      `/api/polymarket/resolution?conditionIds=${conditionIds.map(id => encodeURIComponent(id)).join(',')}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch resolutions: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.resolutions || [];
+  } catch (error) {
+    console.error('Error batch checking market resolutions:', error);
+    // Return default invalid outcomes for all markets on error
+    return conditionIds.map(conditionId => ({
+      conditionId,
+      resolved: false,
+      outcome: 2,
+    }));
   }
 }

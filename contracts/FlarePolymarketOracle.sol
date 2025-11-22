@@ -13,8 +13,8 @@ interface IFdcVerification {
 
 /**
  * @title FlarePolymarketOracle
- * @notice Oracle for Polymarket UMA resolution data using Flare Data Connector
- * @dev Integrates with Flare's FDC to verify and store Polymarket outcomes
+ * @notice Oracle for Polymarket resolution data using Polymarket API via Flare Data Connector
+ * @dev Integrates with Flare's FDC to verify and store Polymarket outcomes from API
  */
 contract FlarePolymarketOracle is IPolymarketOracle {
     
@@ -27,7 +27,7 @@ contract FlarePolymarketOracle is IPolymarketOracle {
     // FDC Verification contract on Flare (Coston2 testnet address)
     IFdcVerification public immutable fdcVerification;
     
-    // Outcome storage
+    // Outcome storage: conditionId => Outcome
     mapping(bytes32 => Outcome) public outcomes;
     
     // Access control
@@ -36,7 +36,7 @@ contract FlarePolymarketOracle is IPolymarketOracle {
     
     // Events
     event OutcomeVerified(
-        bytes32 indexed umaId, 
+        bytes32 indexed conditionId, 
         uint8 outcome, 
         uint256 timestamp,
         address attestor
@@ -70,114 +70,114 @@ contract FlarePolymarketOracle is IPolymarketOracle {
     
     /**
      * @notice Submit verified outcome from FDC attestation
-     * @param umaId The Polymarket UMA question ID
+     * @param conditionId The Polymarket condition ID
      * @param outcome The resolved outcome (0=NO, 1=YES, 2=INVALID)
-     * @param attestationData The attestation data from FDC
+     * @param attestationData The attestation data from FDC (contains Polymarket API data)
      * @param merkleProof Merkle proof for verification
      */
     function submitOutcome(
-        bytes32 umaId,
+        bytes32 conditionId,
         uint8 outcome,
         bytes calldata attestationData,
         bytes32[] calldata merkleProof
     ) external onlyAttestor {
         require(outcome <= 2, "Invalid outcome value");
-        require(!outcomes[umaId].resolved, "Already resolved");
+        require(!outcomes[conditionId].resolved, "Already resolved");
         
         // Verify attestation through FDC
         bool verified = fdcVerification.verifyAttestation(attestationData, merkleProof);
         require(verified, "Attestation verification failed");
         
         // Store the outcome
-        outcomes[umaId] = Outcome({
+        outcomes[conditionId] = Outcome({
             resolved: true,
             outcome: outcome,
             timestamp: block.timestamp
         });
         
-        emit OutcomeVerified(umaId, outcome, block.timestamp, msg.sender);
+        emit OutcomeVerified(conditionId, outcome, block.timestamp, msg.sender);
     }
     
     /**
      * @notice Submit outcome directly (for owner/testing)
-     * @param umaId The Polymarket UMA question ID
+     * @param conditionId The Polymarket condition ID
      * @param outcome The resolved outcome (0=NO, 1=YES, 2=INVALID)
      * @dev Use this for testing or manual intervention when FDC attestation is unavailable
      */
-    function setOutcomeDirect(bytes32 umaId, uint8 outcome) external onlyOwner {
+    function setOutcomeDirect(bytes32 conditionId, uint8 outcome) external onlyOwner {
         require(outcome <= 2, "Invalid outcome value");
         
-        outcomes[umaId] = Outcome({
+        outcomes[conditionId] = Outcome({
             resolved: true,
             outcome: outcome,
             timestamp: block.timestamp
         });
         
-        emit OutcomeVerified(umaId, outcome, block.timestamp, msg.sender);
+        emit OutcomeVerified(conditionId, outcome, block.timestamp, msg.sender);
     }
     
     /**
      * @notice Batch set outcomes directly (for owner/testing)
-     * @param umaIds Array of UMA question IDs
-     * @param _outcomes Array of outcomes corresponding to each UMA ID
+     * @param conditionIds Array of condition IDs
+     * @param _outcomes Array of outcomes corresponding to each condition ID
      */
     function setOutcomesBatch(
-        bytes32[] calldata umaIds, 
+        bytes32[] calldata conditionIds, 
         uint8[] calldata _outcomes
     ) external onlyOwner {
-        require(umaIds.length == _outcomes.length, "Length mismatch");
+        require(conditionIds.length == _outcomes.length, "Length mismatch");
         
-        for (uint256 i = 0; i < umaIds.length; i++) {
+        for (uint256 i = 0; i < conditionIds.length; i++) {
             require(_outcomes[i] <= 2, "Invalid outcome value");
             
-            outcomes[umaIds[i]] = Outcome({
+            outcomes[conditionIds[i]] = Outcome({
                 resolved: true,
                 outcome: _outcomes[i],
                 timestamp: block.timestamp
             });
             
-            emit OutcomeVerified(umaIds[i], _outcomes[i], block.timestamp, msg.sender);
+            emit OutcomeVerified(conditionIds[i], _outcomes[i], block.timestamp, msg.sender);
         }
     }
     
     /**
-     * @notice Get the resolved outcome for a UMA ID
-     * @param umaId The UMA question ID
+     * @notice Get the resolved outcome for a condition ID
+     * @param conditionId The condition ID
      * @return resolved Whether the outcome has been resolved
      * @return outcome The resolved outcome (0=NO, 1=YES, 2=INVALID)
      */
-    function getOutcome(bytes32 umaId) 
+    function getOutcome(bytes32 conditionId) 
         external 
         view 
         override 
         returns (bool resolved, uint8 outcome) 
     {
-        Outcome memory o = outcomes[umaId];
+        Outcome memory o = outcomes[conditionId];
         return (o.resolved, o.outcome);
     }
     
     /**
      * @notice Check if a market is resolved
-     * @param umaId The UMA question ID
+     * @param conditionId The condition ID
      * @return Whether the outcome has been resolved
      */
-    function isResolved(bytes32 umaId) external view override returns (bool) {
-        return outcomes[umaId].resolved;
+    function isResolved(bytes32 conditionId) external view override returns (bool) {
+        return outcomes[conditionId].resolved;
     }
     
     /**
      * @notice Get full outcome details including timestamp
-     * @param umaId The UMA question ID
+     * @param conditionId The condition ID
      * @return resolved Whether resolved
      * @return outcome The outcome value
      * @return timestamp When it was resolved
      */
-    function getOutcomeDetails(bytes32 umaId) 
+    function getOutcomeDetails(bytes32 conditionId) 
         external 
         view 
         returns (bool resolved, uint8 outcome, uint256 timestamp) 
     {
-        Outcome memory o = outcomes[umaId];
+        Outcome memory o = outcomes[conditionId];
         return (o.resolved, o.outcome, o.timestamp);
     }
     

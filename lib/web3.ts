@@ -100,13 +100,6 @@ export async function getParlayTokenContract(chain: ChainName = 'coston2'): Prom
   return new Contract(tokenAddress, ABIS.ParlayToken, signer);
 }
 
-export async function getMockOracleContract(chain: ChainName = 'coston2'): Promise<Contract> {
-  const provider = await getProvider();
-  const signer = await provider.getSigner();
-  const address = CONTRACT_ADDRESSES[chain].MockOracle;
-  return new Contract(address, ABIS.MockPolymarketOracle, signer);
-}
-
 // Utility functions
 export { formatEther, parseEther };
 

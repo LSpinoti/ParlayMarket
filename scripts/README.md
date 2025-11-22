@@ -24,11 +24,9 @@ Create a `.env` file with your private key:
 PRIVATE_KEY=your_private_key_without_0x_prefix
 ```
 
-## Oracle Selection
+## Oracle
 
-- **Local/Hardhat**: Automatically uses MockPolymarketOracle
-- **Coston2**: Automatically uses MockPolymarketOracle (can override with USE_MOCK_ORACLE=false)
-- **Flare Mainnet**: Uses FlarePolymarketOracle by default
+All networks use **FlarePolymarketOracle** integrated with Flare Data Connector (FDC).
 
 ## Deployment Output
 

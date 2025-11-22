@@ -24,8 +24,7 @@ ParlayMarket allows users to:
 - **Solidity 0.8.20**
 - **ParlayMarket** - Main contract managing parlay lifecycle
 - **ParlayToken** - ERC-721 for tradable positions
-- **FlarePolymarketOracle** - Production oracle using Flare Data Connector (FDC)
-- **MockPolymarketOracle** - (Deprecated) Test oracle for manual testing
+- **FlarePolymarketOracle** - Oracle using Flare Data Connector (FDC)
 
 ### Frontend
 - **Next.js 16** (App Router)
@@ -98,7 +97,6 @@ parlaymarket/
 │   ├── ParlayMarket.sol     # Main parlay contract
 │   ├── ParlayToken.sol      # ERC-721 position tokens
 │   ├── FlarePolymarketOracle.sol  # FDC-integrated oracle
-│   ├── MockPolymarketOracle.sol   # (Deprecated) Test oracle
 │   └── interfaces/          # Contract interfaces
 ├── hooks/                   # React hooks
 │   ├── useWeb3.ts          # Web3 connection hook

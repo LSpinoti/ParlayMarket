@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${GAMMA_API_BASE}/markets?_q=${encodeURIComponent(query)}&limit=${limit}`,
+      `${GAMMA_API_BASE}/public-search?q=${encodeURIComponent(query)}&limit=${limit}`,
       {
         headers: {
           'Accept': 'application/json',

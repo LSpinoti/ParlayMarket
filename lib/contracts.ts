@@ -4,14 +4,15 @@ import abis from '../contracts/abis.json';
 export const CONTRACT_ADDRESSES = {
   // Flare Testnet (Coston2)
   coston2: {
-    ParlayMarket: '0xa95fEBb5f7A256FCB1b317F94c41F346a8735d15', // TODO: Update after deployment
-    FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    ParlayMarket: '0xF8a2e7539519dF3776A0A41229a0F8c189C338B3',
+    ParlayToken: '0xE2126732D634eB67aC1FE94D0Be5F3Ea637dd345',
+    FlarePolymarketOracle: '0xE809079Dd41ED40564b3a70F579e4C08239e9CD6',
     FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
-    MockOracle: '0x7eB457DaBDFdCa2D9fD39acA6f7B9A87dA4DE911', // DEPRECATED: For testing only
   },
   // Flare Mainnet
   flare: {
     ParlayMarket: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    ParlayToken: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
     FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
     FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
   },
@@ -51,7 +52,7 @@ export interface ParlayData {
   id: number;
   maker: string;
   taker: string;
-  umaIds: string[];
+  conditionIds: string[];
   requiredOutcomes: number[];
   makerStake: bigint;
   takerStake: bigint;

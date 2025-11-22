@@ -4,7 +4,7 @@ const path = require("path");
 
 /**
  * Deployment script for ParlayMarket contracts
- * Supports both production (FlarePolymarketOracle) and testing (MockPolymarketOracle)
+ * Deploys FlarePolymarketOracle for all networks
  */
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -16,35 +16,20 @@ async function main() {
   console.log("Network:", network.name, "Chain ID:", network.chainId);
   console.log("=".repeat(60));
 
-  // Determine which oracle to deploy based on network
-  const isTestnet = network.chainId === 31337n || network.chainId === 114n;
-  const oracleType = process.env.USE_MOCK_ORACLE === "true" || isTestnet ? "Mock" : "Flare";
+  // Deploy Flare Oracle
+  // FDC Verification contract addresses:
+  // - Coston2: 0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91
+  // - Flare Mainnet: 0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91
+  const fdcAddress = process.env.FDC_VERIFICATION_ADDRESS || "0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91";
   
-  console.log(`\nDeploying ${oracleType} Oracle...`);
+  console.log("\nDeploying FlarePolymarketOracle...");
+  console.log("Using FDC Verification at:", fdcAddress);
   
-  let oracleAddress;
-  
-  if (oracleType === "Mock") {
-    // Deploy Mock Oracle for testing
-    const MockOracle = await hre.ethers.getContractFactory("MockPolymarketOracle");
-    const mockOracle = await MockOracle.deploy();
-    await mockOracle.waitForDeployment();
-    oracleAddress = await mockOracle.getAddress();
-    console.log("MockPolymarketOracle deployed to:", oracleAddress);
-  } else {
-    // Deploy Flare Oracle for production
-    // FDC Verification contract addresses:
-    // - Coston2: 0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91
-    // - Flare Mainnet: 0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91
-    const fdcAddress = process.env.FDC_VERIFICATION_ADDRESS || "0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91";
-    
-    console.log("Using FDC Verification at:", fdcAddress);
-    const FlareOracle = await hre.ethers.getContractFactory("FlarePolymarketOracle");
-    const flareOracle = await FlareOracle.deploy(fdcAddress);
-    await flareOracle.waitForDeployment();
-    oracleAddress = await flareOracle.getAddress();
-    console.log("FlarePolymarketOracle deployed to:", oracleAddress);
-  }
+  const FlareOracle = await hre.ethers.getContractFactory("FlarePolymarketOracle");
+  const flareOracle = await FlareOracle.deploy(fdcAddress);
+  await flareOracle.waitForDeployment();
+  const oracleAddress = await flareOracle.getAddress();
+  console.log("FlarePolymarketOracle deployed to:", oracleAddress);
 
   // Deploy ParlayMarket (ParlayToken will be deployed automatically)
   console.log("\nDeploying ParlayMarket...");
@@ -65,10 +50,7 @@ async function main() {
     deployer: deployer.address,
     timestamp: new Date().toISOString(),
     contracts: {
-      oracle: {
-        type: oracleType,
-        address: oracleAddress,
-      },
+      flarePolymarketOracle: oracleAddress,
       parlayMarket: parlayMarketAddress,
       parlayToken: parlayTokenAddress,
     },
@@ -85,7 +67,7 @@ async function main() {
   console.log("\n" + "=".repeat(60));
   console.log("Deployment Summary:");
   console.log("=".repeat(60));
-  console.log(`Oracle (${oracleType}):`, oracleAddress);
+  console.log("FlarePolymarketOracle:", oracleAddress);
   console.log("ParlayMarket:", parlayMarketAddress);
   console.log("ParlayToken:", parlayTokenAddress);
   console.log("\nDeployment info saved to:", deploymentFile);
@@ -94,7 +76,7 @@ async function main() {
   // Verification instructions
   if (network.chainId !== 31337n) {
     console.log("\nTo verify contracts on block explorer:");
-    console.log(`  npx hardhat verify --network ${network.name} ${oracleAddress}${oracleType === "Flare" ? ' "' + (process.env.FDC_VERIFICATION_ADDRESS || "0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91") + '"' : ''}`);
+    console.log(`  npx hardhat verify --network ${network.name} ${oracleAddress} "${fdcAddress}"`);
     console.log(`  npx hardhat verify --network ${network.name} ${parlayMarketAddress} "${oracleAddress}"`);
     console.log(`  npx hardhat verify --network ${network.name} ${parlayTokenAddress} "${parlayMarketAddress}"`);
   }

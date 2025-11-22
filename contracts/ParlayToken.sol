@@ -26,6 +26,11 @@ contract ParlayToken {
     // Only the ParlayMarket contract can mint
     address public immutable parlayMarket;
     
+    // ERC-165 interface IDs
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+    bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
+    bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
+    
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
@@ -73,6 +78,76 @@ contract ParlayToken {
         delete tokenSide[tokenId];
         
         emit Transfer(owner, address(0), tokenId);
+    }
+    
+    // ERC-165 Support
+    
+    /**
+     * @notice Check if contract implements an interface
+     * @dev Required for NFT detection in wallets like Metamask
+     */
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return
+            interfaceId == _INTERFACE_ID_ERC165 ||
+            interfaceId == _INTERFACE_ID_ERC721 ||
+            interfaceId == _INTERFACE_ID_ERC721_METADATA;
+    }
+    
+    // ERC-721 Metadata
+    
+    /**
+     * @notice Get metadata URI for a token
+     * @dev Returns JSON metadata for the NFT
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory) {
+        require(_owners[tokenId] != address(0), "Token does not exist");
+        
+        uint256 parlayId = tokenToParlayId[tokenId];
+        bool isYes = tokenSide[tokenId];
+        
+        // Construct JSON metadata
+        string memory side = isYes ? "YES" : "NO";
+        string memory json = string(abi.encodePacked(
+            '{"name":"ParlayMarket Position #',
+            _toString(tokenId),
+            '","description":"',
+            side,
+            ' position for Parlay #',
+            _toString(parlayId),
+            '","attributes":[{"trait_type":"Side","value":"',
+            side,
+            '"},{"trait_type":"Parlay ID","value":"',
+            _toString(parlayId),
+            '"}]}'
+        ));
+        
+        // Return as data URI
+        return string(abi.encodePacked(
+            'data:application/json;utf8,',
+            json
+        ));
+    }
+    
+    /**
+     * @notice Convert uint256 to string
+     */
+    function _toString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
     }
     
     // Standard ERC-721 functions

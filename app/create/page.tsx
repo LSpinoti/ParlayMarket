@@ -12,7 +12,7 @@ import {
 } from '@/lib/polymarket';
 
 interface MarketLeg {
-  umaId: string;
+  conditionId: string;
   requiredOutcome: number;
   description: string;
 }
@@ -24,7 +24,7 @@ export default function CreateParlayPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [legs, setLegs] = useState<MarketLeg[]>([
-    { umaId: '', requiredOutcome: 1, description: '' },
+    { conditionId: '', requiredOutcome: 1, description: '' },
   ]);
   const [makerStake, setMakerStake] = useState('');
   const [takerStake, setTakerStake] = useState('');
@@ -66,7 +66,7 @@ export default function CreateParlayPage() {
 
   const addMarketToParlay = (market: SimplifiedMarket, outcome: 'yes' | 'no') => {
     const newLeg: MarketLeg = {
-      umaId: conditionIdToBytes32(market.conditionId),
+      conditionId: conditionIdToBytes32(market.conditionId),
       requiredOutcome: outcome === 'yes' ? 1 : 0,
       description: market.question,
     };
@@ -75,7 +75,7 @@ export default function CreateParlayPage() {
   };
 
   const addLeg = () => {
-    setLegs([...legs, { umaId: '', requiredOutcome: 1, description: '' }]);
+    setLegs([...legs, { conditionId: '', requiredOutcome: 1, description: '' }]);
   };
 
   const removeLeg = (index: number) => {
@@ -101,8 +101,8 @@ export default function CreateParlayPage() {
 
     try {
       // Validate inputs
-      if (legs.some(leg => !leg.umaId)) {
-        throw new Error('All UMA IDs must be filled');
+      if (legs.some(leg => !leg.conditionId)) {
+        throw new Error('All condition IDs must be filled');
       }
       if (!makerStake || parseFloat(makerStake) <= 0) {
         throw new Error('Maker stake must be positive');
@@ -113,12 +113,12 @@ export default function CreateParlayPage() {
 
       const contract = await getParlayMarketContract('coston2');
       
-      const umaIds = legs.map(leg => leg.umaId);
+      const conditionIds = legs.map(leg => leg.conditionId);
       const requiredOutcomes = legs.map(leg => leg.requiredOutcome);
       const expiryTimestamp = Math.floor(Date.now() / 1000) + parseInt(expiryDays) * 24 * 60 * 60;
 
       const tx = await contract.createParlay(
-        umaIds,
+        conditionIds,
         requiredOutcomes,
         parseEther(takerStake),
         expiryTimestamp,
@@ -283,12 +283,12 @@ export default function CreateParlayPage() {
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm text-gray-400 mb-1">
-                      Polymarket UMA ID (bytes32)
+                      Polymarket Condition ID (bytes32)
                     </label>
                     <input
                       type="text"
-                      value={leg.umaId}
-                      onChange={(e) => updateLeg(index, 'umaId', e.target.value)}
+                      value={leg.conditionId}
+                      onChange={(e) => updateLeg(index, 'conditionId', e.target.value)}
                       placeholder="0x1234..."
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
                     />

@@ -10,7 +10,7 @@ export default function Home() {
         
         <p className="text-xl text-gray-400 mb-12 leading-relaxed">
           The first fully collateralized parlay marketplace on <span className="text-orange-500 font-semibold">Flare Network</span>.
-          Create multi-leg parlays, trade positions as tokens, and settle trust-minimized using Polymarket's UMA resolutions.
+          Create multi-leg parlays, trade positions as tokens, and settle using Polymarket's API resolution data.
         </p>
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -34,7 +34,7 @@ export default function Home() {
             <div className="text-4xl mb-3">⚡</div>
             <h3 className="text-xl font-bold mb-2">Trust-Minimized</h3>
             <p className="text-gray-400 text-sm">
-              Settlements use Polymarket's UMA oracle - no custom oracle logic needed
+              Settlements use Polymarket's API resolution data - no custom oracle logic needed
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function Home() {
             </div>
             <div>
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mb-2 mx-auto">4</div>
-              <p className="text-gray-400">Settlement via UMA oracle when markets resolve</p>
+              <p className="text-gray-400">Settlement via Polymarket API when markets resolve</p>
             </div>
           </div>
         </div>

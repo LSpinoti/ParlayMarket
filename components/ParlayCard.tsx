@@ -40,7 +40,7 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Legs:</span>
-            <span className="text-white font-semibold">{parlay.umaIds.length} markets</span>
+            <span className="text-white font-semibold">{parlay.conditionIds?.length || 0} markets</span>
           </div>
 
           <div className="flex justify-between text-sm">

@@ -149,21 +149,21 @@ export default function ParlayDetailPage() {
 
         {/* Market Legs */}
         <div className="mb-6">
-          <h2 className="text-xl font-bold mb-4">Market Legs ({parlay.umaIds.length})</h2>
+          <h2 className="text-xl font-bold mb-4">Market Legs ({parlay.conditionIds?.length || 0})</h2>
           <div className="space-y-3">
-            {parlay.umaIds.map((umaId, idx) => (
+            {parlay.conditionIds?.map((conditionId, idx) => (
               <div key={idx} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-gray-400 text-sm">Leg {idx + 1}</div>
-                    <div className="font-mono text-xs mt-1 text-gray-500">{umaId}</div>
+                    <div className="font-mono text-xs mt-1 text-gray-500">{conditionId}</div>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    parlay.requiredOutcomes[idx] === 1
+                    parlay.requiredOutcomes?.[idx] === 1
                       ? 'bg-green-500/10 text-green-500'
                       : 'bg-red-500/10 text-red-500'
                   }`}>
-                    Required: {getOutcomeString(parlay.requiredOutcomes[idx])}
+                    Required: {getOutcomeString(parlay.requiredOutcomes?.[idx] || 0)}
                   </div>
                 </div>
               </div>

@@ -21,8 +21,8 @@ contract ParlayMarket {
         uint256 id;
         address maker;
         address taker;
-        bytes32[] umaIds;           // Polymarket UMA IDs
-        uint8[] requiredOutcomes;   // Required outcome for each UMA (1 = YES)
+        bytes32[] conditionIds;     // Polymarket condition IDs
+        uint8[] requiredOutcomes;   // Required outcome for each market (1 = YES)
         uint256 makerStake;         // Maker's collateral in FLR
         uint256 takerStake;         // Taker's collateral in FLR
         uint256 expiry;             // Timestamp after which unfilled parlays can be cancelled
@@ -42,7 +42,7 @@ contract ParlayMarket {
     event ParlayCreated(
         uint256 indexed parlayId,
         address indexed maker,
-        bytes32[] umaIds,
+        bytes32[] conditionIds,
         uint8[] requiredOutcomes,
         uint256 makerStake,
         uint256 takerStake,
@@ -75,21 +75,21 @@ contract ParlayMarket {
     
     /**
      * @notice Create a new parlay
-     * @param umaIds Array of Polymarket UMA IDs
+     * @param conditionIds Array of Polymarket condition IDs
      * @param requiredOutcomes Required outcome for each market (1 = YES wins parlay)
      * @param takerStake Amount taker must provide
      * @param expiry Timestamp after which parlay can be cancelled if unfilled
      * @param makerIsYes Whether maker takes YES side (true) or NO side (false)
      */
     function createParlay(
-        bytes32[] calldata umaIds,
+        bytes32[] calldata conditionIds,
         uint8[] calldata requiredOutcomes,
         uint256 takerStake,
         uint256 expiry,
         bool makerIsYes
     ) external payable returns (uint256) {
-        require(umaIds.length > 0, "No markets specified");
-        require(umaIds.length == requiredOutcomes.length, "Length mismatch");
+        require(conditionIds.length > 0, "No markets specified");
+        require(conditionIds.length == requiredOutcomes.length, "Length mismatch");
         require(expiry > block.timestamp, "Expiry in past");
         require(msg.value > 0, "No stake provided");
         require(takerStake > 0, "Taker stake must be positive");
@@ -103,7 +103,7 @@ contract ParlayMarket {
         Parlay storage parlay = parlays[parlayId];
         parlay.id = parlayId;
         parlay.maker = msg.sender;
-        parlay.umaIds = umaIds;
+        parlay.conditionIds = conditionIds;
         parlay.requiredOutcomes = requiredOutcomes;
         parlay.makerStake = msg.value;
         parlay.takerStake = takerStake;
@@ -114,7 +114,7 @@ contract ParlayMarket {
         emit ParlayCreated(
             parlayId,
             msg.sender,
-            umaIds,
+            conditionIds,
             requiredOutcomes,
             msg.value,
             takerStake,
@@ -186,8 +186,8 @@ contract ParlayMarket {
         bool yesWins = true;
         bool anyInvalid = false;
         
-        for (uint256 i = 0; i < parlay.umaIds.length; i++) {
-            (bool resolved, uint8 outcome) = oracle.getOutcome(parlay.umaIds[i]);
+        for (uint256 i = 0; i < parlay.conditionIds.length; i++) {
+            (bool resolved, uint8 outcome) = oracle.getOutcome(parlay.conditionIds[i]);
             
             if (!resolved) {
                 allResolved = false;
@@ -244,7 +244,7 @@ contract ParlayMarket {
     function getParlay(uint256 parlayId) external view returns (
         address maker,
         address taker,
-        bytes32[] memory umaIds,
+        bytes32[] memory conditionIds,
         uint8[] memory requiredOutcomes,
         uint256 makerStake,
         uint256 takerStake,
@@ -256,7 +256,7 @@ contract ParlayMarket {
         return (
             parlay.maker,
             parlay.taker,
-            parlay.umaIds,
+            parlay.conditionIds,
             parlay.requiredOutcomes,
             parlay.makerStake,
             parlay.takerStake,

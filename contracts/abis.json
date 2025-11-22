@@ -14,6 +14,8 @@
     "event ParlayInvalidated(uint256 indexed parlayId)"
   ],
   "ParlayToken": [
+    "function name() external view returns (string)",
+    "function symbol() external view returns (string)",
     "function ownerOf(uint256 tokenId) external view returns (address)",
     "function balanceOf(address owner) external view returns (uint256)",
     "function tokenToParlayId(uint256 tokenId) external view returns (uint256)",
@@ -21,7 +23,13 @@
     "function transferFrom(address from, address to, uint256 tokenId) external",
     "function approve(address to, uint256 tokenId) external",
     "function setApprovalForAll(address operator, bool approved) external",
-    "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+    "function getApproved(uint256 tokenId) external view returns (address)",
+    "function isApprovedForAll(address owner, address operator) external view returns (bool)",
+    "function supportsInterface(bytes4 interfaceId) external pure returns (bool)",
+    "function tokenURI(uint256 tokenId) external view returns (string)",
+    "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+    "event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
+    "event ApprovalForAll(address indexed owner, address indexed operator, bool approved)"
   ],
   "FlarePolymarketOracle": [
     "function submitOutcome(bytes32 umaId, uint8 outcome, bytes calldata attestationData, bytes32[] calldata merkleProof) external",
@@ -40,13 +48,6 @@
     "event AttestorAdded(address indexed attestor)",
     "event AttestorRemoved(address indexed attestor)",
     "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
-  ],
-  "MockPolymarketOracle": [
-    "function setOutcome(bytes32 umaId, uint8 outcome) external",
-    "function setOutcomes(bytes32[] calldata umaIds, uint8[] calldata outcomes) external",
-    "function getOutcome(bytes32 umaId) external view returns (bool resolved, uint8 outcome)",
-    "function isResolved(bytes32 umaId) external view returns (bool)",
-    "event OutcomeSet(bytes32 indexed umaId, uint8 outcome)"
   ]
 }
 
