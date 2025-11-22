@@ -10,6 +10,7 @@ export default function Navigation() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/create', label: 'Create Parlay' },
+    { href: '/marketplace', label: 'Marketplace' },
     { href: '/my-parlays', label: 'My Parlays' },
   ];
 

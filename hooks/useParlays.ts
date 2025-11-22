@@ -14,28 +14,33 @@ export function useParlays(chain: ChainName = 'coston2') {
     setError(null);
     try {
       const contract = await getParlayMarketContract(chain);
-      const totalParlays = await contract.getTotalParlays();
-      const total = Number(totalParlays);
+      const loadedParlays: ParlayData[] = [];
 
-      const parlayPromises: Promise<ParlayData>[] = [];
-      for (let i = 0; i < total; i++) {
-        parlayPromises.push(
-          contract.getParlay(i).then((data: any) => ({
-            id: i,
-            maker: data.maker,
-            taker: data.taker,
-            conditionIds: data.conditionIds || [],
-            requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
-            makerStake: data.makerStake,
-            takerStake: data.takerStake,
-            expiry: Number(data.expiry),
-            status: Number(data.status),
-            makerIsYes: data.makerIsYes,
-          }))
-        );
+      // Scan through parlay IDs until we hit an error (no getTotalParlays)
+      for (let i = 0; i < 1000; i++) {
+        try {
+          const data = await contract.getParlay(i);
+          // Check if valid parlay (maker address is not zero)
+          if (data.maker && data.maker !== '0x0000000000000000000000000000000000000000') {
+            loadedParlays.push({
+              id: i,
+              maker: data.maker,
+              taker: data.taker,
+              conditionIds: data.conditionIds || [],
+              requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
+              makerStake: data.makerStake,
+              takerStake: data.takerStake,
+              expiry: Number(data.expiry),
+              status: Number(data.status),
+              makerIsYes: data.makerIsYes,
+            });
+          }
+        } catch (err) {
+          // No more parlays or error - stop scanning
+          break;
+        }
       }
 
-      const loadedParlays = await Promise.all(parlayPromises);
       setParlays(loadedParlays);
     } catch (err: any) {
       console.error('Error fetching parlays:', err);
