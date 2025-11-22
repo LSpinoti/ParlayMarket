@@ -48,7 +48,7 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
 
         {/* Market Images */}
         {parlay.imageUrls && parlay.imageUrls.length > 0 && (
-          <div className="mb-4 overflow-y-scroll max-h-[102px] space-y-2">
+          <div className="mb-4 overflow-y-scroll max-h-[103px] space-y-2">
             {Array.from({ length: Math.ceil(parlay.imageUrls.length / 2) }).map((_, rowIdx) => {
               const startIdx = rowIdx * 2;
               const legsInRow = parlay.imageUrls.slice(startIdx, startIdx + 2);
