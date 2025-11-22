@@ -1,6 +1,6 @@
 'use client';
 
-import { BrowserProvider, Contract, formatEther, parseEther } from 'ethers';
+import { BrowserProvider, Contract, formatEther, parseEther, EventLog } from 'ethers';
 import { CONTRACT_ADDRESSES, ABIS, ChainName } from './contracts';
 
 let provider: BrowserProvider | null = null;
@@ -140,7 +140,8 @@ export async function importNFTToMetamask(
 }
 
 /**
- * Get token IDs for a parlay by querying the contract directly
+ * Get token IDs for a parlay by querying past events
+ * Uses chunking strategy to work around RPC block range limits
  * @param parlayId The parlay ID
  * @param chain The chain name
  */
@@ -148,24 +149,178 @@ export async function getParlayTokenIds(
   parlayId: number,
   chain: ChainName = 'coston2'
 ): Promise<{ yesTokenId: string | null; noTokenId: string | null }> {
-  try {
-    const contract = await getParlayMarketContract(chain);
-    
-    // Query the parlays mapping directly to get token IDs
-    const parlay = await contract.parlays(parlayId);
-    
-    const yesTokenId = parlay.yesTokenId?.toString() || '0';
-    const noTokenId = parlay.noTokenId?.toString() || '0';
-    
-    return {
-      yesTokenId: yesTokenId !== '0' ? yesTokenId : null,
-      noTokenId: noTokenId !== '0' ? noTokenId : null,
-    };
-  } catch (error) {
-    console.error('Error fetching token IDs:', error);
+  const contract = await getParlayMarketContract(chain);
+  const provider = await getProvider();
+  const currentBlock = await provider.getBlockNumber();
+  const filter = contract.filters.ParlayFilled(parlayId);
+  
+  // Strategy 1: Try querying in small chunks going backwards from current block
+  // This works around RPC limits by querying small ranges
+  const chunkSize = 20; // Very small chunks to avoid RPC limits
+  const maxChunks = 100; // Limit total chunks to avoid too many requests
+  
+  for (let i = 0; i < maxChunks; i++) {
+    try {
+      const chunkFrom = currentBlock - (chunkSize * (i + 1));
+      const chunkTo = currentBlock - (chunkSize * i);
+      
+      if (chunkFrom < 0) break;
+      
+      const events = await contract.queryFilter(filter, chunkFrom, chunkTo);
+      
+      if (events.length > 0 && events[events.length - 1] instanceof EventLog) {
+        const latestEvent = events[events.length - 1] as EventLog;
+        const args = latestEvent.args as any;
+        
+        let yesTokenId: string | null = null;
+        let noTokenId: string | null = null;
+        
+        if (Array.isArray(args)) {
+          if (args.length >= 4) {
+            yesTokenId = args[2]?.toString() || null;
+            noTokenId = args[3]?.toString() || null;
+          }
+        } else if (args && typeof args === 'object') {
+          yesTokenId = args.yesTokenId?.toString() || null;
+          noTokenId = args.noTokenId?.toString() || null;
+        }
+        
+        if (yesTokenId && yesTokenId !== '0' && noTokenId && noTokenId !== '0') {
+          return {
+            yesTokenId: yesTokenId,
+            noTokenId: noTokenId,
+          };
+        }
+      }
+    } catch (chunkError: any) {
+      // If chunk fails, try next chunk
+      // Only log if it's not a "too many blocks" error (which we expect)
+      const isBlockLimitError = chunkError?.message?.includes('too many blocks') || chunkError?.code === -32603;
+      if (!isBlockLimitError) {
+        console.warn(`Error querying chunk ${i}:`, chunkError.message);
+      }
+      continue;
+    }
   }
   
+  // Strategy 2: Try alternative approach using token contract Transfer events
+  // This might have different RPC limits
+  try {
+    const tokenContract = await getParlayTokenContract(chain);
+    
+    // Query Transfer events from zero address (minting) in small chunks
+    // We'll check if the token belongs to our parlay
+    const transferFilter = tokenContract.filters.Transfer(null, null, null);
+    
+    // Try last 100 blocks first
+    for (let chunk = 0; chunk < 10; chunk++) {
+      try {
+        const chunkFrom = Math.max(0, currentBlock - (100 * (chunk + 1)));
+        const chunkTo = currentBlock - (100 * chunk);
+        
+        if (chunkFrom < 0) break;
+        
+        const transferEvents = await tokenContract.queryFilter(transferFilter, chunkFrom, chunkTo);
+        
+        // Check each transfer event to see if it's a mint for our parlay
+        for (const event of transferEvents) {
+          if (event instanceof EventLog) {
+            const args = event.args as any;
+            const from = Array.isArray(args) ? args[0] : args.from;
+            const tokenId = Array.isArray(args) ? args[2] : args.tokenId;
+            
+            // Check if this is a mint (from zero address)
+            if (from && typeof from === 'string' && from.toLowerCase() === '0x0000000000000000000000000000000000000000') {
+              try {
+                // Check if this token belongs to our parlay
+                const tokenParlayId = await tokenContract.tokenToParlayId(tokenId);
+                if (Number(tokenParlayId) === parlayId) {
+                  const isYes = await tokenContract.tokenSide(tokenId);
+                  if (isYes) {
+                    // Find the corresponding NO token
+                    const noTokenId = await findCorrespondingToken(tokenContract, parlayId, false, currentBlock);
+                    return {
+                      yesTokenId: tokenId.toString(),
+                      noTokenId: noTokenId,
+                    };
+                  } else {
+                    // Find the corresponding YES token
+                    const yesTokenId = await findCorrespondingToken(tokenContract, parlayId, true, currentBlock);
+                    return {
+                      yesTokenId: yesTokenId,
+                      noTokenId: tokenId.toString(),
+                    };
+                  }
+                }
+              } catch (checkError) {
+                // Token might not exist or be burned, continue
+                continue;
+              }
+            }
+          }
+        }
+      } catch (transferError) {
+        // Try next chunk
+        continue;
+      }
+    }
+  } catch (tokenError) {
+    console.warn('Alternative token contract query failed:', tokenError);
+  }
+  
+  // If all strategies fail, return null
+  console.warn(`Could not find token IDs for parlay ${parlayId} using any strategy`);
   return { yesTokenId: null, noTokenId: null };
+}
+
+/**
+ * Helper function to find corresponding token (YES or NO) for a parlay
+ */
+async function findCorrespondingToken(
+  tokenContract: Contract,
+  parlayId: number,
+  findYes: boolean,
+  currentBlock: number
+): Promise<string | null> {
+  // Try to find the corresponding token by checking recent mints
+  // This is a fallback - ideally we'd have both token IDs from the event
+  const transferFilter = tokenContract.filters.Transfer(null, null, null);
+  
+  for (let chunk = 0; chunk < 10; chunk++) {
+    try {
+      const chunkFrom = Math.max(0, currentBlock - (100 * (chunk + 1)));
+      const chunkTo = currentBlock - (100 * chunk);
+      
+      if (chunkFrom < 0) break;
+      
+      const transferEvents = await tokenContract.queryFilter(transferFilter, chunkFrom, chunkTo);
+      
+      for (const event of transferEvents) {
+        if (event instanceof EventLog) {
+          const args = event.args as any;
+          const from = Array.isArray(args) ? args[0] : args.from;
+          const tokenId = Array.isArray(args) ? args[2] : args.tokenId;
+          
+          if (from && typeof from === 'string' && from.toLowerCase() === '0x0000000000000000000000000000000000000000') {
+            try {
+              const tokenParlayId = await tokenContract.tokenToParlayId(tokenId);
+              const isYes = await tokenContract.tokenSide(tokenId);
+              
+              if (Number(tokenParlayId) === parlayId && isYes === findYes) {
+                return tokenId.toString();
+              }
+            } catch (checkError) {
+              continue;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  return null;
 }
 
 // Utility functions
