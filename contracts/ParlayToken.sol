@@ -2,6 +2,27 @@
 pragma solidity ^0.8.20;
 
 /**
+ * @title IParlayMarket
+ * @notice Minimal interface to access parlay image URLs
+ */
+interface IParlayMarket {
+    function getParlay(uint256 parlayId) external view returns (
+        address maker,
+        address taker,
+        string memory name,
+        bytes32[] memory conditionIds,
+        uint8[] memory requiredOutcomes,
+        string[] memory legNames,
+        string[] memory imageUrls,
+        uint256 makerStake,
+        uint256 takerStake,
+        uint256 expiry,
+        uint8 status,
+        bool makerIsYes
+    );
+}
+
+/**
  * @title ParlayToken
  * @notice ERC-721 tokens representing YES/NO positions in a parlay
  * @dev Minted by ParlayMarket contract when a parlay is filled
@@ -105,21 +126,66 @@ contract ParlayToken {
         uint256 parlayId = tokenToParlayId[tokenId];
         bool isYes = tokenSide[tokenId];
         
+        // Get the first leg's image URL from the parlay
+        string memory imageUrl = "";
+        try IParlayMarket(parlayMarket).getParlay(parlayId) returns (
+            address,
+            address,
+            string memory,
+            bytes32[] memory,
+            uint8[] memory,
+            string[] memory,
+            string[] memory imageUrls,
+            uint256,
+            uint256,
+            uint256,
+            uint8,
+            bool
+        ) {
+            if (imageUrls.length > 0 && bytes(imageUrls[0]).length > 0) {
+                imageUrl = imageUrls[0];
+            }
+        } catch {
+            // If query fails, leave imageUrl empty
+        }
+        
         // Construct JSON metadata
         string memory side = isYes ? "YES" : "NO";
-        string memory json = string(abi.encodePacked(
-            '{"name":"ParlayMarket Position #',
-            _toString(tokenId),
-            '","description":"',
-            side,
-            ' position for Parlay #',
-            _toString(parlayId),
-            '","attributes":[{"trait_type":"Side","value":"',
-            side,
-            '"},{"trait_type":"Parlay ID","value":"',
-            _toString(parlayId),
-            '"}]}'
-        ));
+        string memory json;
+        
+        if (bytes(imageUrl).length > 0) {
+            // Include image in metadata
+            json = string(abi.encodePacked(
+                '{"name":"ParlayMarket Position #',
+                _toString(tokenId),
+                '","description":"',
+                side,
+                ' position for Parlay #',
+                _toString(parlayId),
+                '","image":"',
+                imageUrl,
+                '","attributes":[{"trait_type":"Side","value":"',
+                side,
+                '"},{"trait_type":"Parlay ID","value":"',
+                _toString(parlayId),
+                '"}]}'
+            ));
+        } else {
+            // No image available
+            json = string(abi.encodePacked(
+                '{"name":"ParlayMarket Position #',
+                _toString(tokenId),
+                '","description":"',
+                side,
+                ' position for Parlay #',
+                _toString(parlayId),
+                '","attributes":[{"trait_type":"Side","value":"',
+                side,
+                '"},{"trait_type":"Parlay ID","value":"',
+                _toString(parlayId),
+                '"}]}'
+            ));
+        }
         
         // Return as data URI
         return string(abi.encodePacked(
