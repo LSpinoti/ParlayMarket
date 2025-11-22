@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
+/**
+ * GET /api/polymarket/search
+ * 
+ * Searches Polymarket using the /public-search endpoint.
+ * 
+ * The /public-search endpoint returns:
+ * - events: Array of events (each event contains a markets array)
+ * - tags: Array of tags
+ * - profiles: Array of user profiles
+ * 
+ * Query parameters:
+ * - q: Search query (required)
+ * - limit: Number of results (default: 50)
+ * 
+ * Note: Events contain multiple related markets. The client-side code
+ * extracts markets from the events array.
+ */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;

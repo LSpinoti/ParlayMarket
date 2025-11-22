@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
+/**
+ * GET /api/polymarket/market/[conditionId]
+ * 
+ * Fetches a specific market by conditionId from Polymarket Gamma API.
+ * The /markets/{conditionId} endpoint returns a single market object.
+ * 
+ * Path parameter:
+ * - conditionId: The market's condition ID (hex string)
+ * 
+ * Note: This endpoint should return a Market object directly, not an Event.
+ * A Market is a specific tradable question identified by its conditionId.
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: { conditionId: string } }

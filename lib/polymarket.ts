@@ -9,12 +9,17 @@ export interface PolymarketToken {
   winner?: boolean;
 }
 
+/**
+ * Polymarket Market object from Gamma API
+ * Note: A market is a specific tradable question (e.g., "Will Bitcoin hit $100k?")
+ * This is different from an Event, which contains multiple related markets.
+ */
 export interface PolymarketMarket {
   id: string;
   question: string;
-  conditionId: string;
+  conditionId: string; // Unique identifier for the market (hex string)
   questionID?: string;
-  slug?: string;
+  slug?: string; // Human-readable identifier for URLs
   description?: string;
   endDate: string;
   endDateIso?: string;
@@ -25,8 +30,8 @@ export interface PolymarketMarket {
   closed: boolean;
   archived: boolean;
   acceptingOrders?: boolean;
-  outcomes: string;
-  outcomePrices: string;
+  outcomes: string; // Comma-separated string of outcomes (e.g., "Yes,No")
+  outcomePrices: string; // Comma-separated string of prices (e.g., "0.45,0.55")
   category?: string;
   volume?: string;
   volumeNum?: number;
@@ -38,6 +43,9 @@ export interface PolymarketMarket {
   marketType?: string;
   clobTokenIds?: string;
   tokens?: PolymarketToken[];
+  // Note: The 'markets' property should only exist on Events, not Markets.
+  // This is included here for defensive programming in case the API returns an Event
+  // when we expect a Market (which shouldn't happen per spec).
   markets?: Array<{
     market_slug: string;
     outcome: string;
@@ -105,7 +113,22 @@ export async function fetchPolymarketMarkets(params?: {
     }
 
     const data = await response.json();
-    return data;
+    
+    // The /markets endpoint returns an array of market objects directly
+    // Ensure we return an array even if the API wraps it
+    if (Array.isArray(data)) {
+      return data;
+    }
+    // If the API returns a wrapped object (shouldn't happen per spec, but defensive)
+    if (data.data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    if (data.results && Array.isArray(data.results)) {
+      return data.results;
+    }
+    // Fallback: return empty array if structure is unexpected
+    console.warn('Unexpected response structure from /markets endpoint:', data);
+    return [];
   } catch (error) {
     console.error('Error fetching Polymarket markets:', error);
     return [];
@@ -114,6 +137,8 @@ export async function fetchPolymarketMarkets(params?: {
 
 /**
  * Search markets by query string via server-side API
+ * The /public-search endpoint returns events (which contain markets), tags, and profiles.
+ * We need to extract markets from the events array.
  */
 export async function searchPolymarketMarkets(query: string): Promise<PolymarketMarket[]> {
   try {
@@ -131,7 +156,21 @@ export async function searchPolymarketMarkets(query: string): Promise<Polymarket
     }
 
     const data = await response.json();
-    return data.events;
+    
+    // The /public-search endpoint returns events, which contain markets
+    // Extract all markets from all events
+    const markets: PolymarketMarket[] = [];
+    
+    if (data.events && Array.isArray(data.events)) {
+      for (const event of data.events) {
+        // Events contain a markets array with the actual market objects
+        if (event.markets && Array.isArray(event.markets)) {
+          markets.push(...event.markets);
+        }
+      }
+    }
+    
+    return markets;
   } catch (error) {
     console.error('Error searching Polymarket markets:', error);
     return [];
@@ -216,24 +255,25 @@ export async function fetchSimplifiedMarkets(params?: {
         archived: false,
       });
     }
-    console.log(markets);
+    console.log(markets.map(m => m.outcomes.split(',')));
     // Filter for binary markets (Yes/No) and simplify
-    return markets
+    const ret = markets
       .filter(market => {
         // Only include binary markets with Yes/No outcomes
         const outcomes = market.outcomes ? market.outcomes.split(',') : [];
         if (outcomes.length !== 2) return false;
         
         const hasYes = outcomes.some(o => 
-          o.toLowerCase() === 'yes' || o.toLowerCase() === 'true'
+          o.toLowerCase().includes('yes') || o.toLowerCase().includes('true')
         );
         const hasNo = outcomes.some(o => 
-          o.toLowerCase() === 'no' || o.toLowerCase() === 'false'
+          o.toLowerCase().includes('no') || o.toLowerCase().includes('false')
         );
-        
-        return hasYes && hasNo;
+        return hasYes && hasNo && market.conditionId;
       })
       .map(simplifyMarket);
+      console.log("Returned markets:", ret);
+      return ret;
   } catch (error) {
     console.error('Error fetching simplified markets:', error);
     return [];

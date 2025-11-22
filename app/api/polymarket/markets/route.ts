@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
+/**
+ * GET /api/polymarket/markets
+ * 
+ * Fetches markets from Polymarket Gamma API.
+ * The /markets endpoint returns an array of market objects directly.
+ * 
+ * Query parameters:
+ * - limit: Number of markets to return (default: 20)
+ * - offset: Pagination offset (default: 0)
+ * - active: Filter active markets (true/false)
+ * - closed: Filter closed markets (true/false)
+ * - archived: Filter archived markets (true/false)
+ * 
+ * Note: Markets are individual tradable questions (e.g., "Will Bitcoin hit $100k?").
+ * This is different from Events, which contain multiple related markets.
+ */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
