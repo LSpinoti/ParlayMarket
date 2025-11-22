@@ -85,7 +85,7 @@ export default function MarketplacePage() {
   // Not connected
   if (!account) {
     return (
-      <div className="min-h-screen bg-gray-950 p-8">
+      <div className="min-h-screen bg-black p-8">
         <div className="max-w-4xl mx-auto text-center py-20">
           <h1 className="text-4xl font-bold text-white mb-4">Parlay Marketplace</h1>
           <p className="text-gray-400 mb-8">
@@ -94,7 +94,7 @@ export default function MarketplacePage() {
           <button
             onClick={connectWallet}
             disabled={isConnecting}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="px-6 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-full hover:bg-white/20 disabled:opacity-50 transition-all"
           >
             {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
@@ -104,7 +104,7 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-8">
+    <div className="min-h-screen bg-black p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -115,7 +115,7 @@ export default function MarketplacePage() {
           <button
             onClick={refresh}
             disabled={isLoading}
-            className="px-4 py-2 text-gray-400 hover:text-white"
+            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
           >
             {isLoading ? 'Loading...' : 'Refresh'}
           </button>
@@ -134,23 +134,23 @@ export default function MarketplacePage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab('browse')}
-            className={`px-4 py-2 rounded-lg font-medium ${
+            className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
               activeTab === 'browse'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-white/10 text-white border border-white/20'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
             Browse Listings
           </button>
           <button
             onClick={() => setActiveTab('sell')}
-            className={`px-4 py-2 rounded-lg font-medium ${
+            className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
               activeTab === 'sell'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-white/10 text-white border border-white/20'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
             Sell Position
@@ -188,7 +188,7 @@ export default function MarketplacePage() {
         {/* Sell Tab */}
         {activeTab === 'sell' && (
           <div className="max-w-md">
-            <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               <h2 className="text-xl font-semibold text-white mb-4">
                 List Position for Sale
               </h2>
@@ -208,10 +208,10 @@ export default function MarketplacePage() {
                         <button
                           key={token.tokenId}
                           onClick={() => setSelectedToken(token.tokenId)}
-                          className={`w-full p-3 rounded-lg text-left ${
+                          className={`w-full p-3 rounded-2xl text-left transition-all ${
                             selectedToken === token.tokenId
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                              ? 'bg-white/20 text-white border border-white/30'
+                              : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
                           }`}
                         >
                           <div className="font-medium">
@@ -237,7 +237,7 @@ export default function MarketplacePage() {
                   value={listPrice}
                   onChange={(e) => setListPrice(e.target.value)}
                   placeholder="0.0"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-white/30"
                 />
               </div>
 
@@ -252,7 +252,7 @@ export default function MarketplacePage() {
                 disabled={
                   isSubmitting || selectedToken === null || !listPrice
                 }
-                className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-white text-black rounded-full font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isSubmitting ? 'Listing...' : 'List for Sale'}
               </button>
@@ -274,7 +274,7 @@ export default function MarketplacePage() {
                     .map((listing) => (
                       <div
                         key={listing.id}
-                        className="bg-gray-900 rounded-lg p-4 border border-gray-800"
+                        className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
                       >
                         <div className="flex justify-between items-center">
                           <div>
@@ -288,7 +288,7 @@ export default function MarketplacePage() {
                           <button
                             onClick={() => handleCancel(listing.id)}
                             disabled={isSubmitting}
-                            className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                            className="px-3 py-1 text-sm bg-white/10 text-white rounded-full hover:bg-white/20 disabled:opacity-50 transition-all"
                           >
                             Cancel
                           </button>
@@ -326,15 +326,15 @@ function ListingCard({
   const priceFormatted = ethers.formatEther(listing.price);
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+    <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-4 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
       {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <div>
           <span
-            className={`px-2 py-1 text-xs font-medium rounded ${
+            className={`px-2 py-1 text-xs font-medium rounded-full ${
               listing.isYesPosition
-                ? 'bg-green-600/20 text-green-400'
-                : 'bg-red-600/20 text-red-400'
+                ? 'bg-white/10 text-green-400 border border-green-400/30'
+                : 'bg-white/10 text-red-400 border border-red-400/30'
             }`}
           >
             {listing.isYesPosition ? 'YES' : 'NO'}
@@ -359,7 +359,7 @@ function ListingCard({
         <p className="text-gray-500 text-sm">
           Seller: {listing.seller.slice(0, 6)}...{listing.seller.slice(-4)}
           {isSeller && (
-            <span className="ml-2 text-blue-400">(You)</span>
+            <span className="ml-2 text-white/60">(You)</span>
           )}
         </p>
       </div>
@@ -369,7 +369,7 @@ function ListingCard({
         <button
           onClick={onCancel}
           disabled={isSubmitting}
-          className="w-full py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+          className="w-full py-2 bg-white/10 text-white rounded-full font-medium hover:bg-white/20 disabled:opacity-50 transition-all border border-white/10"
         >
           Cancel Listing
         </button>
@@ -377,7 +377,7 @@ function ListingCard({
         <button
           onClick={onBuy}
           disabled={isSubmitting}
-          className="w-full py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+          className="w-full py-2 bg-white text-black rounded-full font-medium hover:bg-gray-200 disabled:opacity-50 transition-all"
         >
           Buy for {priceFormatted} FLR
         </button>

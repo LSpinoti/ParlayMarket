@@ -107,7 +107,7 @@ export default function MyParlaysPage() {
         <p className="text-gray-400 mb-6">Connect your wallet to view your positions</p>
         <button
           onClick={() => connect()}
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+          className="px-8 py-3 bg-white text-black hover:bg-gray-200 rounded-2xl font-semibold transition-colors"
         >
           Connect Wallet
         </button>
@@ -116,20 +116,20 @@ export default function MyParlaysPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto pt-16">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">My Positions</h1>
         <button
           onClick={fetchPositions}
           disabled={isLoading}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-colors disabled:opacity-50"
         >
-          {isLoading ? 'Loading...' : '🔄 Refresh'}
+          {isLoading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 mb-6">
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 mb-6">
           {error}
         </div>
       )}
@@ -143,7 +143,7 @@ export default function MyParlaysPage() {
           <p className="text-gray-400 mb-6">You don't hold any parlay position tokens</p>
           <a
             href="/create"
-            className="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+            className="inline-block px-8 py-3 bg-white text-black hover:bg-gray-200 rounded-2xl font-semibold transition-colors"
           >
             Create Your First Parlay
           </a>
@@ -153,13 +153,13 @@ export default function MyParlaysPage() {
           {positions.map((position) => (
             <div
               key={position.tokenId}
-              className="bg-gray-900 rounded-xl p-6 border border-gray-800"
+              className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10"
             >
               <div className="flex justify-between items-start mb-4">
                 <span
                   className={`px-3 py-1 text-sm font-medium rounded ${
                     position.isYes
-                      ? 'bg-green-600/20 text-green-400'
+                      ? 'bg-white/20 text-green-400'
                       : 'bg-red-600/20 text-red-400'
                   }`}
                 >
@@ -178,7 +178,7 @@ export default function MyParlaysPage() {
 
               <a
                 href="/marketplace"
-                className="block w-full py-2 bg-blue-600 text-white text-center rounded-lg font-medium hover:bg-blue-700"
+                className="block w-full py-2 bg-white text-black text-center rounded-2xl font-medium hover:bg-gray-200"
               >
                 Sell on Marketplace
               </a>

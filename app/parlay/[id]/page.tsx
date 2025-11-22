@@ -146,7 +146,7 @@ export default function ParlayDetailPage() {
         </button>
       </div>
 
-      <div className="p-8 bg-gray-800/50 border border-gray-700 rounded-xl">
+      <div className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">
@@ -168,20 +168,20 @@ export default function ParlayDetailPage() {
         </div>
 
         {actionError && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 mb-6">
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 mb-6">
             {actionError}
           </div>
         )}
 
         {/* Participants */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+          <div className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
             <div className="text-gray-400 text-sm mb-1">Maker {parlay.makerIsYes ? '(YES)' : '(NO)'}</div>
             <div className="font-mono text-sm">{parlay.maker}</div>
             <div className="text-lg font-bold mt-2">{formatEther(parlay.makerStake)} FLR</div>
           </div>
 
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+          <div className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
             <div className="text-gray-400 text-sm mb-1">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
             <div className="font-mono text-sm">
               {parlay.taker === '0x0000000000000000000000000000000000000000' ? 'Waiting...' : parlay.taker}
@@ -198,14 +198,14 @@ export default function ParlayDetailPage() {
               const imageUrl = parlay.imageUrls?.[idx];
               const legName = parlay.legNames?.[idx] || '';
               return (
-                <div key={idx} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+                <div key={idx} className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
                   <div className="flex gap-4 items-start">
                     {imageUrl && (
                       <div className="flex-shrink-0">
                         <img
                           src={imageUrl}
                           alt={`Market leg ${idx + 1}`}
-                          className="w-20 h-20 rounded-lg object-cover bg-gray-700 border border-gray-600"
+                          className="w-20 h-20 rounded-2xl object-cover bg-gray-700 border border-white/20"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
@@ -237,7 +237,7 @@ export default function ParlayDetailPage() {
 
         {/* Expiry Info */}
         {status === 'Created' && (
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg mb-6">
+          <div className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl mb-6">
             <div className="text-gray-400 text-sm">Expires</div>
             <div className={`text-lg font-semibold ${isExpired ? 'text-red-500' : 'text-white'}`}>
               {new Date(parlay.expiry * 1000).toLocaleString()}
@@ -248,19 +248,19 @@ export default function ParlayDetailPage() {
 
         {/* NFT Token IDs */}
         {(status === 'Filled' || status === 'Resolved') && (parlay.yesTokenId || parlay.noTokenId) && (
-          <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg mb-6">
+          <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl mb-6">
             <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
               <span>🎫</span> NFT Position Tokens
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {parlay.yesTokenId && (
-                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
+                <div className="p-3 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
                   <div className="text-gray-400 text-sm mb-1">YES Token ID</div>
                   <div className="font-mono text-lg font-bold text-green-400 mb-2">#{parlay.yesTokenId}</div>
                   {account?.toLowerCase() === (parlay.makerIsYes ? parlay.maker : parlay.taker).toLowerCase() && (
                     <button
                       onClick={() => handleImportNFT(parlay.yesTokenId!)}
-                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-2xl text-sm font-semibold transition-colors"
                     >
                       Import to Metamask
                     </button>
@@ -268,13 +268,13 @@ export default function ParlayDetailPage() {
                 </div>
               )}
               {parlay.noTokenId && (
-                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
+                <div className="p-3 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
                   <div className="text-gray-400 text-sm mb-1">NO Token ID</div>
                   <div className="font-mono text-lg font-bold text-red-400 mb-2">#{parlay.noTokenId}</div>
                   {account?.toLowerCase() === (parlay.makerIsYes ? parlay.taker : parlay.maker).toLowerCase() && (
                     <button
                       onClick={() => handleImportNFT(parlay.noTokenId!)}
-                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-2xl text-sm font-semibold transition-colors"
                     >
                       Import to Metamask
                     </button>
@@ -294,7 +294,7 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleFill}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 rounded-2xl font-bold transition-colors"
             >
               {isProcessing ? 'Processing...' : `Fill Parlay (${formatEther(parlay.takerStake)} FLR)`}
             </button>
@@ -304,7 +304,7 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleCancel}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-2xl font-bold transition-colors"
             >
               {isProcessing ? 'Processing...' : 'Cancel Parlay'}
             </button>
@@ -314,14 +314,14 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleResolve}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 rounded-2xl font-bold transition-colors"
             >
               {isProcessing ? 'Processing...' : 'Resolve Parlay'}
             </button>
           )}
 
           {status === 'Resolved' && (
-            <div className="flex-1 py-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
+            <div className="flex-1 py-3 bg-green-500/10 border border-green-500/20 rounded-2xl text-center">
               <div className="text-green-500 font-bold">Parlay Resolved ✓</div>
             </div>
           )}
