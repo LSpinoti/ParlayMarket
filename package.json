@@ -8,9 +8,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+<<<<<<< Updated upstream
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+=======
+    "type-check": "tsc --noEmit",
+    "deploy:local": "hardhat run scripts/deploy.ts --network hardhat",
+    "deploy:coston2": "hardhat run scripts/deploy.ts --network coston2",
+    "deploy:flare": "hardhat run scripts/deploy.ts --network flare",
+    "deploy:evvm": "hardhat run scripts/deploy-evvm-wrapper.ts --network coston2",
+    "compile": "hardhat compile"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^17.2.3",
+>>>>>>> Stashed changes
     "ethers": "^6.15.0",
     "next": "16.0.3",
     "react": "19.2.0",
@@ -22,6 +35,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "engines": {
