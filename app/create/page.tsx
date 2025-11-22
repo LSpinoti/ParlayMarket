@@ -198,7 +198,23 @@ export default function CreateParlayPage() {
                         key={market.id}
                         className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
                       >
-                        <div className="flex justify-between items-start gap-4">
+                        <div className="flex justify-between items-center gap-4">
+                          {/* Market Image on the left */}
+                          <div className="flex-shrink-0">
+                            {market.image ? (
+                              // If the market has a proper image property
+                              <img
+                                src={market.image}
+                                alt={market.question}
+                                className="w-14 h-14 rounded-lg object-cover bg-gray-700 border border-gray-700"
+                              />
+                            ) : (
+                              // Fallback placeholder image
+                              <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-gray-700 border border-gray-700 text-gray-400 text-xl font-bold">
+                                🪧
+                              </div>
+                            )}
+                          </div>
                           <div className="flex-1">
                             <h3 className="font-semibold mb-1">{market.question}</h3>
                             {market.description && (
@@ -218,7 +234,6 @@ export default function CreateParlayPage() {
                               )}
                             </div>
                           </div>
-                          
                           <div className="flex gap-2">
                             <button
                               onClick={() => addMarketToParlay(market, 'yes')}
@@ -316,8 +331,8 @@ export default function CreateParlayPage() {
                       onChange={(e) => updateLeg(index, 'requiredOutcome', parseInt(e.target.value))}
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
                     >
-                      <option value={0}>NO (0)</option>
-                      <option value={1}>YES (1)</option>
+                      <option value={0}>NO</option>
+                      <option value={1}>YES</option>
                     </select>
                   </div>
                 </div>
