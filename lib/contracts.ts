@@ -8,6 +8,7 @@ export const CONTRACT_ADDRESSES = {
     ParlayToken: '0x08841716A363c7CD7Ea7DFE642e2F62052c057D3',
     FlarePolymarketOracle: '0x68AF590FBF95BE2278e763959a22E22af2528cfD',
     FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
+    ParlayMarketplace: '0x4599A0e16BB84A0f9039D3Fd19E0089395fAE930', // TODO: Update after deployment
   },
   // Flare Mainnet
   flare: {
@@ -15,6 +16,7 @@ export const CONTRACT_ADDRESSES = {
     ParlayToken: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
     FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
     FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
+    ParlayMarketplace: '0x4599A0e16BB84A0f9039D3Fd19E0089395fAE930', // TODO: Update after deployment
   },
 };
 
