@@ -211,7 +211,6 @@ export function simplifyMarket(market: PolymarketMarket): SimplifiedMarket {
   const outcomes = market.outcomes ? JSON.parse(market.outcomes) : [];
   const prices = market.outcomePrices ? JSON.parse(market.outcomePrices) : [];
   
-  console.log(outcomes, prices);
   // Find YES and NO outcomes
   const yesIndex = outcomes.findIndex((o: string) => 
     o.toLowerCase().includes('yes') || o.toLowerCase().includes('true')
@@ -258,7 +257,7 @@ export async function fetchSimplifiedMarkets(params?: {
         archived: false,
       });
     }
-    console.log(markets.map(m => m.outcomes.split(',')));
+    console.log(markets);
     // Filter for binary markets (Yes/No) and simplify
     const ret = markets
       .filter(market => {
@@ -275,7 +274,6 @@ export async function fetchSimplifiedMarkets(params?: {
         return hasYes && hasNo && market.conditionId;
       })
       .map(simplifyMarket);
-      console.log("Returned markets:", ret);
       return ret;
   } catch (error) {
     console.error('Error fetching simplified markets:', error);

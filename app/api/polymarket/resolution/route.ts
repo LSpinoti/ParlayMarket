@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     // Fetch resolution data for each market
     const resolutionPromises = conditionIds.map(async (conditionId) => {
       try {
+        // Note: Polymarket API doesn't support direct lookup by conditionId
+        // Try fetching, but this will likely fail for most conditionIds
         const response = await fetch(
           `${GAMMA_API_BASE}/markets/${conditionId}`,
           {
@@ -43,11 +45,12 @@ export async function GET(request: NextRequest) {
         );
 
         if (!response.ok) {
+          // Market lookup by conditionId failed (expected for most cases)
           return {
             conditionId,
             resolved: false,
             outcome: 2, // INVALID
-            error: `Market not found or API error: ${response.statusText}`
+            error: `Polymarket API doesn't support lookup by conditionId. Please set outcomes via oracle contract directly.`
           };
         }
 

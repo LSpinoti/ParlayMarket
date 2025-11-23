@@ -31,6 +31,11 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
   const displayStatus = status === 'Created'
     ? `Available for ${parlay.makerIsYes ? 'NO' : 'YES'}`
     : status;
+  
+  // Show resolution outcome for resolved parlays
+  if (status === 'Resolved' && parlay.yesWins !== null && parlay.yesWins !== undefined) {
+    displayStatus = `Resolved to ${parlay.yesWins ? 'YES' : 'NO'}`;
+  }
 
   const statusColors: Record<string, string> = {
     Created: 'bg-green-500/20 text-green-400 border-green-500/30',

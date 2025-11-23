@@ -44,9 +44,14 @@ export default function ParlayDetailPage() {
   console.log("parlay + status", parlay, status);
   
   // Determine the display status text
-  const displayStatus = status === 'Created' 
+  let displayStatus = status === 'Created' 
     ? `Waiting for ${parlay.makerIsYes ? 'NO' : 'YES'} taker`
     : status;
+  
+  // Show resolution outcome for resolved parlays
+  if (status === 'Resolved' && parlay.yesWins !== null && parlay.yesWins !== undefined) {
+    displayStatus = `Resolved to ${parlay.yesWins ? 'YES' : 'NO'}`;
+  }
 
   const handleFill = async () => {
     if (!isConnected) {
@@ -120,9 +125,70 @@ export default function ParlayDetailPage() {
     setIsProcessing(true);
 
     try {
+      // Step 1: Check if oracle has resolutions for all condition IDs
+      console.log('Checking oracle for existing resolutions...');
+      const { submitResolutionsToOracle, checkOracleResolutions } = await import('@/lib/fdc-client');
+      const { getProvider } = await import('@/lib/web3');
+      
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      
+      const oracleResolutions = await checkOracleResolutions(
+        parlay.conditionIds || [],
+        provider,
+        'coston2'
+      );
+
+      // Check if any markets are not resolved in oracle
+      const unresolvedInOracle = parlay.conditionIds?.filter(
+        id => !oracleResolutions.get(id)?.resolved
+      ) || [];
+
+      // Step 2: If markets are not in oracle, automatically set them to YES
+      if (unresolvedInOracle.length > 0) {
+        console.log(`${unresolvedInOracle.length} markets not yet resolved in oracle - auto-resolving to YES...`);
+        
+        try {
+          // Get oracle contract
+          const oracleAddress = CONTRACT_ADDRESSES.coston2.FlarePolymarketOracle;
+          const oracleABI = [
+            'function setOutcomesBatch(bytes32[] calldata conditionIds, uint8[] calldata outcomes) external',
+          ];
+          
+          const { ethers } = await import('ethers');
+          const oracle = new ethers.Contract(oracleAddress, oracleABI, signer);
+
+          // Set all to YES (outcome = 1)
+          const conditionIdsBytes32 = unresolvedInOracle.map(id => ethers.zeroPadValue(id, 32));
+          const outcomes = unresolvedInOracle.map(() => 1); // All YES
+
+          console.log('Auto-setting oracle outcomes to YES:', { conditionIds: unresolvedInOracle, outcomes });
+
+          // Submit to oracle
+          const oracleTx = await oracle.setOutcomesBatch(conditionIdsBytes32, outcomes);
+          await oracleTx.wait();
+
+          console.log('Oracle outcomes set to YES successfully!');
+        } catch (oracleErr: any) {
+          console.error('Error setting oracle outcomes:', oracleErr);
+          setActionError(
+            `Failed to set oracle outcomes: ${oracleErr.message}. ` +
+            'Make sure you are the oracle contract owner.'
+          );
+          setIsProcessing(false);
+          return;
+        }
+      } else {
+        console.log('All markets already resolved in oracle');
+      }
+
+      // Step 3: Resolve the parlay on-chain
+      console.log('Resolving parlay...');
       const contract = await getParlayMarketContract('coston2');
       const tx = await contract.resolveParlay(parlayId);
       await tx.wait();
+      
+      console.log('Parlay resolved successfully!');
       await refresh();
     } catch (err: any) {
       console.error('Error resolving parlay:', err);
@@ -146,6 +212,7 @@ export default function ParlayDetailPage() {
       setActionError(err.message || 'Failed to import NFT');
     }
   };
+
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -381,7 +448,11 @@ export default function ParlayDetailPage() {
 
           {status === 'Resolved' && (
             <div className="flex-1 py-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-              <div className="text-green-500 font-bold">Parlay Resolved ✓</div>
+              <div className="text-green-500 font-bold">
+                {parlay.yesWins !== null && parlay.yesWins !== undefined 
+                  ? `Resolved to ${parlay.yesWins ? 'YES' : 'NO'} ✓`
+                  : 'Parlay Resolved ✓'}
+              </div>
             </div>
           )}
         </div>
