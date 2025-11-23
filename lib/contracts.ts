@@ -64,6 +64,7 @@ export interface ParlayData {
   makerIsYes: boolean;
   yesTokenId?: string | null;
   noTokenId?: string | null;
+  yesWins?: boolean | null; // Whether YES side won when resolved
 }
 
 export function getParlayStatusString(status: number): ParlayStatus {

@@ -31,7 +31,7 @@ export function useParlays(chain: ChainName = 'coston2') {
       const parlayPromises: Promise<ParlayData>[] = [];
       for (let i = 0; i < total; i++) {
         parlayPromises.push(
-          contract.getParlay(i).then((data: any) => {
+          contract.getParlay(i).then(async (data: any) => {
             // Handle both array and object return formats from ethers
             let yesTokenId: string | null = null;
             let noTokenId: string | null = null;
@@ -46,6 +46,22 @@ export function useParlays(chain: ChainName = 'coston2') {
               noTokenId = data.noTokenId?.toString() || null;
             }
             
+            // Get resolution outcome if status is Resolved (2)
+            const status = Number(Array.isArray(data) ? data[10] : data.status);
+            let yesWins: boolean | null = null;
+            
+            if (status === 2) { // Resolved
+              try {
+                const filter = contract.filters.ParlayResolved(i);
+                const events = await contract.queryFilter(filter);
+                if (events.length > 0) {
+                  yesWins = events[0].args?.yesWins ?? null;
+                }
+              } catch (err) {
+                console.warn(`Failed to fetch resolution for parlay ${i}:`, err);
+              }
+            }
+            
             return {
               id: i,
               maker: Array.isArray(data) ? data[0] : data.maker,
@@ -58,10 +74,11 @@ export function useParlays(chain: ChainName = 'coston2') {
               makerStake: Array.isArray(data) ? data[7] : data.makerStake,
               takerStake: Array.isArray(data) ? data[8] : data.takerStake,
               expiry: Number(Array.isArray(data) ? data[9] : data.expiry),
-              status: Number(Array.isArray(data) ? data[10] : data.status),
+              status,
               makerIsYes: Array.isArray(data) ? data[11] : data.makerIsYes,
               yesTokenId: (yesTokenId && yesTokenId !== '0') ? yesTokenId : null,
               noTokenId: (noTokenId && noTokenId !== '0') ? noTokenId : null,
+              yesWins,
             };
           })
         );
@@ -122,6 +139,22 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
         noTokenId = tokenIds.noTokenId;
       }
       
+      // Get resolution outcome if status is Resolved (2)
+      const status = Number(Array.isArray(data) ? data[10] : data.status);
+      let yesWins: boolean | null = null;
+      
+      if (status === 2) { // Resolved
+        try {
+          const filter = contract.filters.ParlayResolved(parlayId);
+          const events = await contract.queryFilter(filter);
+          if (events.length > 0) {
+            yesWins = events[0].args?.yesWins ?? null;
+          }
+        } catch (err) {
+          console.warn(`Failed to fetch resolution for parlay ${parlayId}:`, err);
+        }
+      }
+      
       setParlay({
         id: parlayId,
         maker: Array.isArray(data) ? data[0] : data.maker,
@@ -134,10 +167,11 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
         makerStake: Array.isArray(data) ? data[7] : data.makerStake,
         takerStake: Array.isArray(data) ? data[8] : data.takerStake,
         expiry: Number(Array.isArray(data) ? data[9] : data.expiry),
-        status: Number(Array.isArray(data) ? data[10] : data.status),
+        status,
         makerIsYes: Array.isArray(data) ? data[11] : data.makerIsYes,
         yesTokenId: (yesTokenId && yesTokenId !== '0') ? yesTokenId : null,
         noTokenId: (noTokenId && noTokenId !== '0') ? noTokenId : null,
+        yesWins,
       });
     } catch (err: any) {
       console.error('Error fetching parlay:', err);

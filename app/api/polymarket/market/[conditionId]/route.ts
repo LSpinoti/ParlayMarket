@@ -5,21 +5,25 @@ const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 /**
  * GET /api/polymarket/market/[conditionId]
  * 
- * Fetches a specific market by conditionId from Polymarket Gamma API.
- * The /markets/{conditionId} endpoint returns a single market object.
+ * Attempts to fetch a specific market by conditionId from Polymarket Gamma API.
+ * 
+ * IMPORTANT LIMITATION:
+ * The Polymarket API does not support direct lookup by conditionId (bytes32 hex format).
+ * The /markets/{id} endpoint expects a market slug or numeric ID, not a conditionId.
+ * This endpoint will return 422 errors for most conditionIds.
  * 
  * Path parameter:
- * - conditionId: The market's condition ID (hex string)
+ * - conditionId: The market's condition ID (hex string) - will likely fail
  * 
- * Note: This endpoint should return a Market object directly, not an Event.
- * A Market is a specific tradable question identified by its conditionId.
+ * For resolution data, use /api/polymarket/resolution instead, or set outcomes
+ * directly via the FlarePolymarketOracle contract's setOutcomesBatch() function.
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conditionId: string } }
+  { params }: { params: Promise<{ conditionId: string }> }
 ) {
   try {
-    const { conditionId } = params;
+    const { conditionId } = await params;
 
     if (!conditionId) {
       return NextResponse.json(
@@ -28,25 +32,53 @@ export async function GET(
       );
     }
 
-    const response = await fetch(
-      `${GAMMA_API_BASE}/markets/${conditionId}`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        },
-        // Cache individual market data for 5 minutes
-        next: { revalidate: 300 }
-      }
-    );
+    const url = `${GAMMA_API_BASE}/markets/${conditionId}`;
+    console.log('Fetching from Polymarket:', url);
+    
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Cache individual market data for 5 minutes
+      next: { revalidate: 300 }
+    });
 
     if (!response.ok) {
+      // Try to get the error response body
+      let errorBody;
+      try {
+        errorBody = await response.text();
+      } catch (e) {
+        errorBody = 'Unable to read error response';
+      }
+      
+      console.error('Polymarket API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        conditionId,
+        url,
+        errorBody,
+      });
+      
       if (response.status === 404) {
         return NextResponse.json(
-          { error: 'Market not found' },
+          { error: 'Market not found', conditionId },
           { status: 404 }
         );
       }
-      throw new Error(`Polymarket API error: ${response.statusText}`);
+      
+      if (response.status === 422) {
+        return NextResponse.json(
+          { 
+            error: 'Invalid condition ID format or market not accessible',
+            conditionId,
+            details: errorBody 
+          },
+          { status: 422 }
+        );
+      }
+      
+      throw new Error(`Polymarket API error: ${response.statusText} - ${errorBody}`);
     }
 
     const data = await response.json();
