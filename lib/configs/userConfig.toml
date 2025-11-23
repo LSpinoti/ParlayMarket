@@ -1,0 +1,44 @@
+# Network configuration
+chain = "coston2"
+protocol_id = 100  # Custom protocol for Polymarket API attestations
+
+# Database configuration (for C-Chain indexer)
+# Using dedicated FDC user with password authentication
+[db]
+host = "localhost"
+port = 3306
+database = "flare_ftso_indexer"
+username = "fdc_user"
+password = "fdc_password"
+log_queries = false
+
+# REST API server
+[rest_server]
+addr = ":8080"
+api_key_name = "X-API-KEY"
+api_keys = ["your-secure-api-key"]  # Must match FDC_API_KEY in .env
+title = "Polymarket FDC Attestor API"
+fsp_sub_router_title = "FDC protocol data provider"
+fsp_sub_router_path = "/fsp"
+da_sub_router_title = "Data availability endpoints"
+da_sub_router_path = "/da"
+version = "1.0.0"
+swagger_path = "/api-doc"
+
+# Polymarket API attestation type
+[verifiers.PolymarketAPI]
+abi_path = "configs/abis/polymarket.json"
+
+# Polymarket verifier source
+[verifiers.PolymarketAPI.Sources.PolymarketGamma]
+url = "http://localhost:3001/api/verify"  # Your verifier server
+api_key = "your-secure-api-key"  # Must match VERIFIER_API_KEY
+lut_limit = "86400"  # 24 hours
+queue = "polymarket_queue"
+
+# Queue configuration
+[queue.polymarket_queue]
+max_dequeues_per_second = 10
+max_workers = 5
+max_attempts = 3
+time_off = "2s"

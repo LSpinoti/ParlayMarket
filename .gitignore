@@ -41,7 +41,9 @@ cache/
 artifacts/
 typechain-types/
 
-# foundry
-out/
-cache_forge/
-broadcast/
+# verifier server
+verifier-server/node_modules
+verifier-server/.env
+
+# fdc client (if cloned locally)
+fdc-client/

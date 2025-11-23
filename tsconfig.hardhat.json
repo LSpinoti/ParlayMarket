@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "scripts/**/*.ts",
+    "test/**/*.ts",
+    "hardhat.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "app",
+    "components",
+    "hooks",
+    "lib"
+  ]
+}

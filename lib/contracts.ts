@@ -4,13 +4,17 @@ import abis from '../contracts/abis.json';
 export const CONTRACT_ADDRESSES = {
   // Flare Testnet (Coston2)
   coston2: {
-    ParlayMarket: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
-    MockOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    ParlayMarket: '0xbC0BFF09B80809007013dE8641C946440bb169b1',
+    ParlayToken: '0x866cf88e049dfa63D053e2CcE7edeCE734020664',
+    FlarePolymarketOracle: '0x0B21dE193392dED3bA77337dd4Ce8465D3d9c7A7',
+    FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
   },
   // Flare Mainnet
   flare: {
     ParlayMarket: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
-    Oracle: '0x0000000000000000000000000000000000000000', // TODO: Update with real oracle
+    ParlayToken: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    FlarePolymarketOracle: '0x0000000000000000000000000000000000000000', // TODO: Update after deployment
+    FdcVerification: '0x3A1b3220527aBA427d1e13e4b4c48c31460B4d91', // Flare FDC Verification contract
   },
 };
 
@@ -48,13 +52,19 @@ export interface ParlayData {
   id: number;
   maker: string;
   taker: string;
-  umaIds: string[];
+  name: string;
+  conditionIds: string[];
   requiredOutcomes: number[];
+  legNames: string[];
+  imageUrls: string[];
   makerStake: bigint;
   takerStake: bigint;
   expiry: number;
   status: number;
   makerIsYes: boolean;
+  yesTokenId?: string | null;
+  noTokenId?: string | null;
+  yesWins?: boolean | null; // Whether YES side won when resolved
 }
 
 export function getParlayStatusString(status: number): ParlayStatus {

@@ -1,0 +1,22 @@
+{
+  "name": "polymarket-verifier-server",
+  "version": "1.0.0",
+  "description": "Verifier server for Polymarket API attestations in FDC",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["flare", "fdc", "polymarket", "attestation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "ethers": "^6.9.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

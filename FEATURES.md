@@ -22,10 +22,11 @@
 - ✅ Burned after settlement
 - ✅ Token metadata tracks parlay ID and side
 
-#### MockPolymarketOracle.sol
-- ✅ Test oracle for development and testing
-- ✅ Manual outcome setting for any UMA ID
-- ✅ Batch outcome setting support
+#### FlarePolymarketOracle.sol
+- ✅ FDC-integrated oracle for production
+- ✅ Verifies Polymarket API data on-chain
+- ✅ Attestor-based security model
+- ✅ Direct outcome setting for testing (owner only)
 - ✅ Returns resolved status and outcome (NO/YES/INVALID)
 
 ### Frontend

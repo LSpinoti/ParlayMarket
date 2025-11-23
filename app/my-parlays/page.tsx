@@ -14,10 +14,10 @@ export default function MyParlaysPage() {
       <div className="text-center py-16">
         <div className="text-6xl mb-4">🔒</div>
         <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
-        <p className="text-gray-400 mb-6">Connect your wallet to view your parlays</p>
+        <p className="text-neutral-400 mb-6">Connect your wallet to view your parlays</p>
         <button
           onClick={() => connect()}
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+          className="px-8 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
         >
           Connect Wallet
         </button>
@@ -32,12 +32,12 @@ export default function MyParlaysPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto animate-fade-in-up">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">My Parlays</h1>
         <button
           onClick={refresh}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors"
+          className="px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
         >
           🔄 Refresh
         </button>
@@ -55,10 +55,10 @@ export default function MyParlaysPage() {
         <div className="text-center py-16">
           <div className="text-6xl mb-4">📊</div>
           <h2 className="text-2xl font-bold mb-2">No Parlays Yet</h2>
-          <p className="text-gray-400 mb-6">You haven't created or filled any parlays</p>
+          <p className="text-neutral-400 mb-6">You haven't created or filled any parlays</p>
           <a
             href="/create"
-            className="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+            className="inline-block px-8 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
           >
             Create Your First Parlay
           </a>

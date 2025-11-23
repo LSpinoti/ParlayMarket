@@ -2,6 +2,29 @@
 pragma solidity ^0.8.20;
 
 /**
+ * @title IParlayMarket
+ * @notice Minimal interface to access parlay image URLs
+ */
+interface IParlayMarket {
+    function getParlay(uint256 parlayId) external view returns (
+        address maker,
+        address taker,
+        string memory name,
+        bytes32[] memory conditionIds,
+        uint8[] memory requiredOutcomes,
+        string[] memory legNames,
+        string[] memory imageUrls,
+        uint256 makerStake,
+        uint256 takerStake,
+        uint256 expiry,
+        uint8 status,
+        bool makerIsYes,
+        uint256 yesTokenId,
+        uint256 noTokenId
+    );
+}
+
+/**
  * @title ParlayToken
  * @notice ERC-721 tokens representing YES/NO positions in a parlay
  * @dev Minted by ParlayMarket contract when a parlay is filled
@@ -10,8 +33,11 @@ contract ParlayToken {
     string public name = "ParlayMarket Position";
     string public symbol = "PARLAY";
     
-    // Token ID counter
-    uint256 private _tokenIdCounter;
+    // Token ID counter - starts at 1 so YES tokens are odd (1, 3, 5...) and NO tokens are even (2, 4, 6...)
+    uint256 private _tokenIdCounter = 1;
+    
+    // Total supply tracking
+    uint256 private _totalSupply = 0;
     
     // Token ownership
     mapping(uint256 => address) private _owners;
@@ -25,6 +51,14 @@ contract ParlayToken {
     
     // Only the ParlayMarket contract can mint
     address public immutable parlayMarket;
+    
+    // ERC-165 interface IDs
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+    bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
+    bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
+    
+    // ERC-721 Receiver interface selector
+    bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
     
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
@@ -45,13 +79,17 @@ contract ParlayToken {
      * @param parlayId The parlay ID
      * @param isYes Whether this is a YES token (true) or NO token (false)
      * @return tokenId The minted token ID
+     * @dev YES tokens get odd IDs (1, 3, 5...), NO tokens get even IDs (2, 4, 6...)
      */
     function mint(address to, uint256 parlayId, bool isYes) external onlyParlayMarket returns (uint256) {
         require(to != address(0), "Mint to zero address");
         
+        // YES tokens: odd numbers (1, 3, 5...)
+        // NO tokens: even numbers (2, 4, 6...)
         uint256 tokenId = _tokenIdCounter++;
         _owners[tokenId] = to;
         _balances[to] += 1;
+        _totalSupply += 1;
         tokenToParlayId[tokenId] = parlayId;
         tokenSide[tokenId] = isYes;
         
@@ -67,6 +105,7 @@ contract ParlayToken {
         require(owner != address(0), "Token does not exist");
         
         _balances[owner] -= 1;
+        _totalSupply -= 1;
         delete _owners[tokenId];
         delete _tokenApprovals[tokenId];
         delete tokenToParlayId[tokenId];
@@ -75,7 +114,132 @@ contract ParlayToken {
         emit Transfer(owner, address(0), tokenId);
     }
     
+    // ERC-165 Support
+    
+    /**
+     * @notice Check if contract implements an interface
+     * @dev Required for NFT detection in wallets like Metamask
+     */
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return
+            interfaceId == _INTERFACE_ID_ERC165 ||
+            interfaceId == _INTERFACE_ID_ERC721 ||
+            interfaceId == _INTERFACE_ID_ERC721_METADATA;
+    }
+    
+    // ERC-721 Metadata
+    
+    /**
+     * @notice Get metadata URI for a token
+     * @dev Returns JSON metadata for the NFT
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory) {
+        require(_owners[tokenId] != address(0), "Token does not exist");
+        
+        uint256 parlayId = tokenToParlayId[tokenId];
+        bool isYes = tokenSide[tokenId];
+        
+        // Get the first leg's image URL from the parlay
+        string memory imageUrl = "";
+        try IParlayMarket(parlayMarket).getParlay(parlayId) returns (
+            address,
+            address,
+            string memory,
+            bytes32[] memory,
+            uint8[] memory,
+            string[] memory,
+            string[] memory imageUrls,
+            uint256,
+            uint256,
+            uint256,
+            uint8,
+            bool,
+            uint256,
+            uint256
+        ) {
+            if (imageUrls.length > 0 && bytes(imageUrls[0]).length > 0) {
+                imageUrl = imageUrls[0];
+            }
+        } catch {
+            // If query fails, leave imageUrl empty
+        }
+        
+        // Construct JSON metadata
+        string memory side = isYes ? "YES" : "NO";
+        string memory json;
+        
+        if (bytes(imageUrl).length > 0) {
+            // Include image in metadata
+            json = string(abi.encodePacked(
+                '{"name":"ParlayMarket Position #',
+                _toString(tokenId),
+                '","description":"',
+                side,
+                ' position for Parlay #',
+                _toString(parlayId),
+                '","image":"',
+                imageUrl,
+                '","attributes":[{"trait_type":"Side","value":"',
+                side,
+                '"},{"trait_type":"Parlay ID","value":"',
+                _toString(parlayId),
+                '"}]}'
+            ));
+        } else {
+            // No image available
+            json = string(abi.encodePacked(
+                '{"name":"ParlayMarket Position #',
+                _toString(tokenId),
+                '","description":"',
+                side,
+                ' position for Parlay #',
+                _toString(parlayId),
+                '","attributes":[{"trait_type":"Side","value":"',
+                side,
+                '"},{"trait_type":"Parlay ID","value":"',
+                _toString(parlayId),
+                '"}]}'
+            ));
+        }
+        
+        // Return as data URI
+        return string(abi.encodePacked(
+            'data:application/json;utf8,',
+            json
+        ));
+    }
+    
+    /**
+     * @notice Convert uint256 to string
+     */
+    function _toString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+    
     // Standard ERC-721 functions
+    
+    /**
+     * @notice Returns the total number of tokens in existence
+     * @return The total supply of tokens
+     */
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
     
     function balanceOf(address owner) external view returns (uint256) {
         require(owner != address(0), "Zero address");
@@ -128,12 +292,59 @@ contract ParlayToken {
         emit Transfer(from, to, tokenId);
     }
     
+    /**
+     * @notice Safely transfers a token from one address to another
+     * @dev Checks if recipient is a contract and calls onERC721Received if so
+     */
     function safeTransferFrom(address from, address to, uint256 tokenId) external {
-        transferFrom(from, to, tokenId);
+        safeTransferFrom(from, to, tokenId, "");
     }
     
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory) external {
+    /**
+     * @notice Safely transfers a token from one address to another with data
+     * @dev Checks if recipient is a contract and calls onERC721Received if so
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
         transferFrom(from, to, tokenId);
+        _checkOnERC721Received(from, to, tokenId, data);
     }
+    
+    /**
+     * @notice Internal function to check if recipient implements IERC721Receiver
+     */
+    function _checkOnERC721Received(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) private {
+        if (to.code.length > 0) {
+            try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
+                require(retval == _ERC721_RECEIVED, "ERC721: transfer to non ERC721Receiver implementer");
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert("ERC721: transfer to non ERC721Receiver implementer");
+                } else {
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
+/**
+ * @title IERC721Receiver
+ * @notice Interface for contracts that can receive ERC-721 tokens
+ */
+interface IERC721Receiver {
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
 }
 

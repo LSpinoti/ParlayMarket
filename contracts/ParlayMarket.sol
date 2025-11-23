@@ -21,8 +21,11 @@ contract ParlayMarket {
         uint256 id;
         address maker;
         address taker;
-        bytes32[] umaIds;           // Polymarket UMA IDs
-        uint8[] requiredOutcomes;   // Required outcome for each UMA (1 = YES)
+        string name;                // Name of the parlay
+        bytes32[] conditionIds;     // Polymarket condition IDs
+        uint8[] requiredOutcomes;   // Required outcome for each market (1 = YES)
+        string[] legNames;          // Names for each market leg
+        string[] imageUrls;          // Image URLs for each market leg
         uint256 makerStake;         // Maker's collateral in FLR
         uint256 takerStake;         // Taker's collateral in FLR
         uint256 expiry;             // Timestamp after which unfilled parlays can be cancelled
@@ -42,8 +45,11 @@ contract ParlayMarket {
     event ParlayCreated(
         uint256 indexed parlayId,
         address indexed maker,
-        bytes32[] umaIds,
+        string name,
+        bytes32[] conditionIds,
         uint8[] requiredOutcomes,
+        string[] legNames,
+        string[] imageUrls,
         uint256 makerStake,
         uint256 takerStake,
         uint256 expiry,
@@ -75,21 +81,29 @@ contract ParlayMarket {
     
     /**
      * @notice Create a new parlay
-     * @param umaIds Array of Polymarket UMA IDs
+     * @param name Name of the parlay
+     * @param conditionIds Array of Polymarket condition IDs
      * @param requiredOutcomes Required outcome for each market (1 = YES wins parlay)
+     * @param legNames Array of names for each market leg
+     * @param imageUrls Array of image URLs for each market leg
      * @param takerStake Amount taker must provide
      * @param expiry Timestamp after which parlay can be cancelled if unfilled
      * @param makerIsYes Whether maker takes YES side (true) or NO side (false)
      */
     function createParlay(
-        bytes32[] calldata umaIds,
+        string calldata name,
+        bytes32[] calldata conditionIds,
         uint8[] calldata requiredOutcomes,
+        string[] calldata legNames,
+        string[] calldata imageUrls,
         uint256 takerStake,
         uint256 expiry,
         bool makerIsYes
     ) external payable returns (uint256) {
-        require(umaIds.length > 0, "No markets specified");
-        require(umaIds.length == requiredOutcomes.length, "Length mismatch");
+        require(conditionIds.length > 0, "No markets specified");
+        require(conditionIds.length == requiredOutcomes.length, "Length mismatch");
+        require(conditionIds.length == legNames.length, "Leg names length mismatch");
+        require(conditionIds.length == imageUrls.length, "Image URLs length mismatch");
         require(expiry > block.timestamp, "Expiry in past");
         require(msg.value > 0, "No stake provided");
         require(takerStake > 0, "Taker stake must be positive");
@@ -103,8 +117,20 @@ contract ParlayMarket {
         Parlay storage parlay = parlays[parlayId];
         parlay.id = parlayId;
         parlay.maker = msg.sender;
-        parlay.umaIds = umaIds;
+        parlay.name = name;
+        parlay.conditionIds = conditionIds;
         parlay.requiredOutcomes = requiredOutcomes;
+        
+        // Manually copy legNames array (required for old code generator)
+        for (uint256 i = 0; i < legNames.length; i++) {
+            parlay.legNames.push(legNames[i]);
+        }
+        
+        // Manually copy imageUrls array (required for old code generator)
+        for (uint256 i = 0; i < imageUrls.length; i++) {
+            parlay.imageUrls.push(imageUrls[i]);
+        }
+        
         parlay.makerStake = msg.value;
         parlay.takerStake = takerStake;
         parlay.expiry = expiry;
@@ -114,8 +140,11 @@ contract ParlayMarket {
         emit ParlayCreated(
             parlayId,
             msg.sender,
-            umaIds,
+            name,
+            conditionIds,
             requiredOutcomes,
+            legNames,
+            imageUrls,
             msg.value,
             takerStake,
             expiry,
@@ -186,8 +215,8 @@ contract ParlayMarket {
         bool yesWins = true;
         bool anyInvalid = false;
         
-        for (uint256 i = 0; i < parlay.umaIds.length; i++) {
-            (bool resolved, uint8 outcome) = oracle.getOutcome(parlay.umaIds[i]);
+        for (uint256 i = 0; i < parlay.conditionIds.length; i++) {
+            (bool resolved, uint8 outcome) = oracle.getOutcome(parlay.conditionIds[i]);
             
             if (!resolved) {
                 allResolved = false;
@@ -244,25 +273,35 @@ contract ParlayMarket {
     function getParlay(uint256 parlayId) external view returns (
         address maker,
         address taker,
-        bytes32[] memory umaIds,
+        string memory name,
+        bytes32[] memory conditionIds,
         uint8[] memory requiredOutcomes,
+        string[] memory legNames,
+        string[] memory imageUrls,
         uint256 makerStake,
         uint256 takerStake,
         uint256 expiry,
         ParlayStatus status,
-        bool makerIsYes
+        bool makerIsYes,
+        uint256 yesTokenId,
+        uint256 noTokenId
     ) {
         Parlay storage parlay = parlays[parlayId];
         return (
             parlay.maker,
             parlay.taker,
-            parlay.umaIds,
+            parlay.name,
+            parlay.conditionIds,
             parlay.requiredOutcomes,
+            parlay.legNames,
+            parlay.imageUrls,
             parlay.makerStake,
             parlay.takerStake,
             parlay.expiry,
             parlay.status,
-            parlay.makerIsYes
+            parlay.makerIsYes,
+            parlay.yesTokenId,
+            parlay.noTokenId
         );
     }
     
