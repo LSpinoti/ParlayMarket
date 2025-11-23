@@ -11,10 +11,10 @@ const FDC_API_KEY = process.env.FDC_API_KEY || 'your-secure-api-key';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { requestId: string } }
+  { params }: { params: Promise<{ requestId: string }> }
 ) {
   try {
-    const { requestId } = params;
+    const { requestId } = await params;
 
     if (!requestId) {
       return NextResponse.json(
