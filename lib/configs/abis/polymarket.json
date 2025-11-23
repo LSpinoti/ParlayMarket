@@ -1,0 +1,11 @@
+{
+  "type": "tuple",
+  "components": [
+    {"name": "conditionId", "type": "bytes32"},
+    {"name": "closed", "type": "bool"},
+    {"name": "outcome", "type": "uint8"},
+    {"name": "resolvedAt", "type": "uint256"},
+    {"name": "question", "type": "string"},
+    {"name": "apiDataHash", "type": "bytes32"}
+  ]
+}

@@ -5,7 +5,6 @@
 
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from './contracts';
-import { createAttestationResponse, encodePolymarketResponse } from './fdc-encoder';
 
 export interface ResolutionData {
   conditionId: string;
@@ -13,6 +12,22 @@ export interface ResolutionData {
   outcome: number; // 0=NO, 1=YES, 2=INVALID
   question?: string;
   error?: string;
+}
+
+export interface FDCAttestationRequest {
+  requestId: string;
+  status: 'pending' | 'finalized' | 'failed';
+  success?: boolean;
+  votingRound?: number;
+  estimatedFinalization?: number;
+  message?: string;
+}
+
+export interface FDCAttestationData {
+  attestationData: string; // ABI-encoded attestation
+  merkleProof: string[];   // Merkle proof for verification
+  outcome: number;
+  conditionId: string;
 }
 
 /**
@@ -69,62 +84,161 @@ export async function fetchPolymarketResolution(conditionId: string): Promise<Re
 }
 
 /**
- * Submit resolution data to oracle (testing mode - direct submission)
- * 
- * @param conditionIds Array of condition IDs to resolve
- * @param signer Ethers signer with owner permissions
- * @param network Network to use
- * @returns Transaction receipt
+ * Request FDC attestation for condition IDs
+ * Submits attestation requests to local FDC attestor
+ * Returns success: false if FDC attestor is not available (graceful fallback)
  */
-export async function submitResolutionsToOracle(
+export async function requestFDCAttestation(
   conditionIds: string[],
+  network: 'coston2' | 'flare' = 'coston2'
+): Promise<FDCAttestationRequest> {
+  try {
+    const response = await fetch('/api/fdc/request-attestation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conditionIds, network }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: response.statusText }));
+      
+      // If FDC attestor not available, return failed status for graceful fallback
+      if (response.status === 503) {
+        return {
+          requestId: '',
+          status: 'failed',
+          success: false,
+          message: 'FDC attestor not available - using fallback mode',
+        } as any;
+      }
+      
+      throw new Error(`FDC attestation request failed: ${error.error || response.statusText}`);
+    }
+
+    const data = await response.json();
+    return { ...data, success: true };
+  } catch (error) {
+    // Network error or FDC not reachable - return failed status
+    console.log('FDC attestation request error:', error);
+    return {
+      requestId: '',
+      status: 'failed',
+      success: false,
+      message: 'FDC attestor not reachable - using fallback mode',
+    } as any;
+  }
+}
+
+/**
+ * Poll FDC attestation status until finalized or timeout
+ */
+export async function waitForFDCFinalization(
+  requestId: string,
+  timeoutMs: number = 120000 // 2 minutes
+): Promise<boolean> {
+  const startTime = Date.now();
+  const pollInterval = 5000; // 5 seconds
+
+  while (Date.now() - startTime < timeoutMs) {
+    const response = await fetch(`/api/fdc/attestation-status/${requestId}`);
+    
+    if (!response.ok) {
+      console.warn('Failed to check attestation status:', response.statusText);
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      continue;
+    }
+
+    const data = await response.json();
+    
+    if (data.status === 'finalized') {
+      return true;
+    } else if (data.status === 'failed') {
+      throw new Error('FDC attestation failed');
+    }
+
+    // Wait before next poll
+    await new Promise(resolve => setTimeout(resolve, pollInterval));
+  }
+
+  throw new Error('FDC attestation timeout');
+}
+
+/**
+ * Get finalized attestation data and proofs from FDC
+ */
+export async function getFDCAttestationData(
+  conditionIds: string[],
+  network: 'coston2' | 'flare' = 'coston2'
+): Promise<FDCAttestationData[]> {
+  const response = await fetch('/api/fdc/get-attestation-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ conditionIds, network }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(`Failed to get attestation data: ${error.error || response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Submit FDC-verified outcomes to oracle
+ * This uses the submitOutcome() function with attestation proof
+ */
+export async function submitFDCVerifiedOutcomes(
+  attestationData: FDCAttestationData[],
   signer: ethers.Signer,
   network: 'coston2' | 'flare' = 'coston2'
 ) {
-  // Fetch resolution data for all conditions
-  const resolutions = await Promise.all(
-    conditionIds.map(id => fetchPolymarketResolution(id))
-  );
-
-  // Filter out unresolved markets
-  const resolved = resolutions.filter(r => r.closed);
-  
-  if (resolved.length === 0) {
-    throw new Error('No resolved markets to submit');
-  }
-
-  // Get oracle contract
   const oracleAddress = CONTRACT_ADDRESSES[network].FlarePolymarketOracle;
   const oracleABI = [
-    'function setOutcomesBatch(bytes32[] calldata conditionIds, uint8[] calldata outcomes) external',
+    'function submitOutcome(bytes32 conditionId, uint8 outcome, bytes calldata attestationData, bytes32[] calldata merkleProof) external',
     'function getOutcome(bytes32 conditionId) external view returns (bool resolved, uint8 outcome)',
-    'function owner() external view returns (address)',
   ];
 
   const oracle = new ethers.Contract(oracleAddress, oracleABI, signer);
 
-  // Convert condition IDs to bytes32
-  // ConditionIds are already hex strings, just ensure they're properly padded
-  const conditionIdsBytes32 = resolved.map(r => 
-    ethers.zeroPadValue(r.conditionId, 32)
-  );
-  const outcomes = resolved.map(r => r.outcome);
+  const results = [];
 
-  console.log('Submitting resolutions:', {
-    conditionIds: resolved.map(r => r.conditionId),
-    outcomes,
+  for (const data of attestationData) {
+    try {
+      const conditionIdBytes32 = ethers.zeroPadValue(data.conditionId, 32);
+
+      console.log('Submitting FDC-verified outcome:', {
+        conditionId: data.conditionId,
+        outcome: data.outcome,
   });
 
-  // Submit batch
-  const tx = await oracle.setOutcomesBatch(conditionIdsBytes32, outcomes);
+      const tx = await oracle.submitOutcome(
+        conditionIdBytes32,
+        data.outcome,
+        data.attestationData,
+        data.merkleProof
+      );
+      
   const receipt = await tx.wait();
 
-  return {
-    receipt,
-    submitted: resolved.length,
-    conditionIds: resolved.map(r => r.conditionId),
-    outcomes,
-  };
+      results.push({
+        conditionId: data.conditionId,
+        outcome: data.outcome,
+        success: true,
+        txHash: receipt.hash,
+      });
+    } catch (error) {
+      console.error(`Failed to submit outcome for ${data.conditionId}:`, error);
+      results.push({
+        conditionId: data.conditionId,
+        outcome: data.outcome,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -166,50 +280,3 @@ export async function checkOracleResolutions(
   return results;
 }
 
-/**
- * Request FDC attestation (production mode)
- * 
- * Note: This is a placeholder. In production, you would:
- * 1. Submit request to FDC Hub contract
- * 2. Wait for finalization (~90 seconds)
- * 3. Retrieve attestation data and Merkle proof
- * 4. Submit to oracle with proof
- */
-export async function requestFDCAttestation(
-  conditionIds: string[],
-  network: 'coston2' | 'flare' = 'coston2'
-) {
-  const response = await fetch('/api/fdc/request-attestation', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ conditionIds, network }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`FDC attestation request failed: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Prepare oracle submission data from API
- * 
- * This fetches the Polymarket data and prepares it for oracle submission
- */
-export async function prepareOracleSubmission(
-  conditionIds: string[],
-  network: 'coston2' | 'flare' = 'coston2'
-) {
-  const response = await fetch('/api/fdc/submit-to-oracle', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ conditionIds, network }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Oracle submission preparation failed: ${response.statusText}`);
-  }
-
-  return response.json();
-}

@@ -127,7 +127,13 @@ export default function ParlayDetailPage() {
     try {
       // Step 1: Check if oracle has resolutions for all condition IDs
       console.log('Checking oracle for existing resolutions...');
-      const { submitResolutionsToOracle, checkOracleResolutions } = await import('@/lib/fdc-client');
+      const { 
+        checkOracleResolutions,
+        requestFDCAttestation,
+        waitForFDCFinalization,
+        getFDCAttestationData,
+        submitFDCVerifiedOutcomes
+      } = await import('@/lib/fdc-client');
       const { getProvider } = await import('@/lib/web3');
       
       const provider = await getProvider();
@@ -144,37 +150,55 @@ export default function ParlayDetailPage() {
         id => !oracleResolutions.get(id)?.resolved
       ) || [];
 
-      // Step 2: If markets are not in oracle, automatically set them to YES
+      // Step 2: If markets are not in oracle, get attestation data
       if (unresolvedInOracle.length > 0) {
-        console.log(`${unresolvedInOracle.length} markets not yet resolved in oracle - auto-resolving to YES...`);
+        console.log(`${unresolvedInOracle.length} markets not yet resolved in oracle...`);
         
         try {
-          // Get oracle contract
-          const oracleAddress = CONTRACT_ADDRESSES.coston2.FlarePolymarketOracle;
-          const oracleABI = [
-            'function setOutcomesBatch(bytes32[] calldata conditionIds, uint8[] calldata outcomes) external',
-          ];
+          // Try FDC attestation first, but fall back gracefully if not available
+          let attestationData;
           
-          const { ethers } = await import('ethers');
-          const oracle = new ethers.Contract(oracleAddress, oracleABI, signer);
+          try {
+            console.log('Attempting FDC attestation request...');
+            const attestationRequest = await requestFDCAttestation(unresolvedInOracle, 'coston2');
+            
+            if (attestationRequest.success) {
+              console.log('FDC attestation requested:', attestationRequest);
+              setActionError('FDC attestation requested. Waiting for finalization (~90 seconds)...');
 
-          // Set all to YES (outcome = 1)
-          const conditionIdsBytes32 = unresolvedInOracle.map(id => ethers.zeroPadValue(id, 32));
-          const outcomes = unresolvedInOracle.map(() => 1); // All YES
+              // Wait for finalization (with 2 minute timeout)
+              console.log('Waiting for FDC finalization...');
+              await waitForFDCFinalization(attestationRequest.requestId, 120000);
+              
+              console.log('FDC attestation finalized!');
+              setActionError('FDC attestation finalized. Getting proof data...');
+            }
+          } catch (fdcErr: any) {
+            console.log('FDC attestor not available, using fallback mode with real Polymarket data');
+            setActionError('Using development mode: fetching real Polymarket data...');
+          }
 
-          console.log('Auto-setting oracle outcomes to YES:', { conditionIds: unresolvedInOracle, outcomes });
+          // Get attestation data (works with or without FDC client)
+          console.log('Fetching attestation data and proofs...');
+          attestationData = await getFDCAttestationData(unresolvedInOracle, 'coston2');
+          
+          console.log('Attestation data retrieved:', attestationData);
+          setActionError('Submitting verified outcomes to oracle...');
 
-          // Submit to oracle
-          const oracleTx = await oracle.setOutcomesBatch(conditionIdsBytes32, outcomes);
-          await oracleTx.wait();
+          // Submit to oracle with proofs
+          console.log('Submitting verified outcomes to oracle...');
+          const results = await submitFDCVerifiedOutcomes(attestationData, signer, 'coston2');
+          
+          const successCount = results.filter(r => r.success).length;
+          console.log(`Successfully submitted ${successCount}/${results.length} outcomes to oracle`);
 
-          console.log('Oracle outcomes set to YES successfully!');
-        } catch (oracleErr: any) {
-          console.error('Error setting oracle outcomes:', oracleErr);
-          setActionError(
-            `Failed to set oracle outcomes: ${oracleErr.message}. ` +
-            'Make sure you are the oracle contract owner.'
-          );
+          if (successCount === 0) {
+            throw new Error('Failed to submit any outcomes to oracle');
+          }
+
+        } catch (err: any) {
+          console.error('Error submitting outcomes:', err);
+          setActionError(`Failed to submit outcomes: ${err.message}`);
           setIsProcessing(false);
           return;
         }
@@ -184,11 +208,14 @@ export default function ParlayDetailPage() {
 
       // Step 3: Resolve the parlay on-chain
       console.log('Resolving parlay...');
+      setActionError('Resolving parlay on-chain...');
+      
       const contract = await getParlayMarketContract('coston2');
       const tx = await contract.resolveParlay(parlayId);
       await tx.wait();
       
       console.log('Parlay resolved successfully!');
+      setActionError(null);
       await refresh();
     } catch (err: any) {
       console.error('Error resolving parlay:', err);
