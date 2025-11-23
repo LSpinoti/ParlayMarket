@@ -183,6 +183,7 @@ export default function CreateParlayPage() {
             onChange={(e) => setParlayName(e.target.value)}
             placeholder="Enter a name for your parlay (e.g., 'Election 2024 Parlay')"
             className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-2xl focus:outline-none focus:border-blue-500"
+
           />
         </div>
 

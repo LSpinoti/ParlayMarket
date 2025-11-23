@@ -5,7 +5,75 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
+    <div className="min-h-[80vh]">
+      {/* Available Parlays Section */}
+      <div className="max-w-7xl mx-auto mb-16">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-4xl font-bold">Available Parlays</h2>
+          <button
+            onClick={refresh}
+            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors"
+          >
+            🔄 Refresh
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-3 mb-8">
+          {['all', 'created', 'filled', 'resolved'].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f as any)}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                filter === f
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {error && (
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 mb-6">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <LoadingSpinner size="lg" />
+        ) : filteredParlays.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">📊</div>
+            <h3 className="text-2xl font-bold mb-2">No Parlays Found</h3>
+            <p className="text-gray-400">
+              {filter === 'all' 
+                ? 'Be the first to create a parlay!'
+                : `No ${filter} parlays at the moment.`
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredParlays.map((parlay) => (
+              <ParlayCard key={parlay.id} parlay={parlay} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="text-center max-w-4xl mx-auto mb-12">
+        <h1 className="text-6xl font-bold mb-6">
+          Welcome to <span className="text-blue-500">ParlayMarket</span>
+        </h1>
+        
+        <p className="text-xl text-gray-400 mb-12 leading-relaxed">
+          The first fully collateralized parlay marketplace on <span className="text-orange-500 font-semibold">Flare Network</span>.
+          Create multi-leg parlays, trade positions as tokens, and settle using Polymarket's API resolution data.
+        </p>
+
+        <div className="min-h-screen bg-black relative overflow-hidden" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
       {/* Spotlight effect */}
       <div className="absolute inset-0">
         {/* Main spotlight cone */}
@@ -23,6 +91,7 @@ export default function Home() {
           }}
         />
       </div>
+        </div>
 
       {/* Vertical lines background */}
       <div className="absolute inset-0 overflow-hidden opacity-20">
@@ -118,7 +187,6 @@ export default function Home() {
           />
         </div>
       </div>
-
     </div>
   );
 }

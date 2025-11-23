@@ -282,7 +282,9 @@ contract ParlayMarket {
         uint256 takerStake,
         uint256 expiry,
         ParlayStatus status,
-        bool makerIsYes
+        bool makerIsYes,
+        uint256 yesTokenId,
+        uint256 noTokenId
     ) {
         Parlay storage parlay = parlays[parlayId];
         return (
@@ -297,7 +299,9 @@ contract ParlayMarket {
             parlay.takerStake,
             parlay.expiry,
             parlay.status,
-            parlay.makerIsYes
+            parlay.makerIsYes,
+            parlay.yesTokenId,
+            parlay.noTokenId
         );
     }
     

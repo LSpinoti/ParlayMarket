@@ -31,21 +31,39 @@ export function useParlays(chain: ChainName = 'coston2') {
       const parlayPromises: Promise<ParlayData>[] = [];
       for (let i = 0; i < total; i++) {
         parlayPromises.push(
-          contract.getParlay(i).then((data: any) => ({
-            id: i,
-            maker: data.maker,
-            taker: data.taker,
-            name: data.name || '',
-            conditionIds: data.conditionIds || [],
-            requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
-            legNames: data.legNames || [],
-            imageUrls: data.imageUrls || [],
-            makerStake: data.makerStake,
-            takerStake: data.takerStake,
-            expiry: Number(data.expiry),
-            status: Number(data.status),
-            makerIsYes: data.makerIsYes,
-          }))
+          contract.getParlay(i).then((data: any) => {
+            // Handle both array and object return formats from ethers
+            let yesTokenId: string | null = null;
+            let noTokenId: string | null = null;
+            
+            if (Array.isArray(data)) {
+              // If returned as array, token IDs are at indices 12 and 13
+              yesTokenId = data[12]?.toString() || null;
+              noTokenId = data[13]?.toString() || null;
+            } else if (data && typeof data === 'object') {
+              // If returned as object with named properties
+              yesTokenId = data.yesTokenId?.toString() || null;
+              noTokenId = data.noTokenId?.toString() || null;
+            }
+            
+            return {
+              id: i,
+              maker: Array.isArray(data) ? data[0] : data.maker,
+              taker: Array.isArray(data) ? data[1] : data.taker,
+              name: (Array.isArray(data) ? data[2] : data.name) || '',
+              conditionIds: (Array.isArray(data) ? data[3] : data.conditionIds) || [],
+              requiredOutcomes: (Array.isArray(data) ? data[4] : data.requiredOutcomes)?.map((x: any) => Number(x)) || [],
+              legNames: (Array.isArray(data) ? data[5] : data.legNames) || [],
+              imageUrls: (Array.isArray(data) ? data[6] : data.imageUrls) || [],
+              makerStake: Array.isArray(data) ? data[7] : data.makerStake,
+              takerStake: Array.isArray(data) ? data[8] : data.takerStake,
+              expiry: Number(Array.isArray(data) ? data[9] : data.expiry),
+              status: Number(Array.isArray(data) ? data[10] : data.status),
+              makerIsYes: Array.isArray(data) ? data[11] : data.makerIsYes,
+              yesTokenId: (yesTokenId && yesTokenId !== '0') ? yesTokenId : null,
+              noTokenId: (noTokenId && noTokenId !== '0') ? noTokenId : null,
+            };
+          })
         );
       }
 
@@ -83,29 +101,43 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
       const contract = await getParlayMarketContract(chain);
       const data = await contract.getParlay(parlayId);
       
-      // Fetch token IDs if parlay is filled
-      let tokenIds: { yesTokenId: string | null; noTokenId: string | null } = { yesTokenId: null, noTokenId: null };
-      const status = Number(data.status);
-      if (status === 1 || status === 2) { // Filled or Resolved
-        tokenIds = await getParlayTokenIds(parlayId, chain);
+      // Handle both array and object return formats from ethers
+      let yesTokenId: string | null = null;
+      let noTokenId: string | null = null;
+      
+      if (Array.isArray(data)) {
+        // If returned as array, token IDs are at indices 12 and 13
+        yesTokenId = data[12]?.toString() || null;
+        noTokenId = data[13]?.toString() || null;
+      } else if (data && typeof data === 'object') {
+        // If returned as object with named properties
+        yesTokenId = data.yesTokenId?.toString() || null;
+        noTokenId = data.noTokenId?.toString() || null;
+      }
+      
+      // Fallback to direct mapping read if getParlay doesn't return token IDs (for backwards compatibility)
+      if ((!yesTokenId || yesTokenId === '0') && (!noTokenId || noTokenId === '0')) {
+        const tokenIds = await getParlayTokenIds(parlayId, chain);
+        yesTokenId = tokenIds.yesTokenId;
+        noTokenId = tokenIds.noTokenId;
       }
       
       setParlay({
         id: parlayId,
-        maker: data.maker,
-        taker: data.taker,
-        name: data.name || '',
-        conditionIds: data.conditionIds || [],
-        requiredOutcomes: data.requiredOutcomes?.map((x: any) => Number(x)) || [],
-        legNames: data.legNames || [],
-        imageUrls: data.imageUrls || [],
-        makerStake: data.makerStake,
-        takerStake: data.takerStake,
-        expiry: Number(data.expiry),
-        status: status,
-        makerIsYes: data.makerIsYes,
-        yesTokenId: tokenIds.yesTokenId,
-        noTokenId: tokenIds.noTokenId,
+        maker: Array.isArray(data) ? data[0] : data.maker,
+        taker: Array.isArray(data) ? data[1] : data.taker,
+        name: (Array.isArray(data) ? data[2] : data.name) || '',
+        conditionIds: (Array.isArray(data) ? data[3] : data.conditionIds) || [],
+        requiredOutcomes: (Array.isArray(data) ? data[4] : data.requiredOutcomes)?.map((x: any) => Number(x)) || [],
+        legNames: (Array.isArray(data) ? data[5] : data.legNames) || [],
+        imageUrls: (Array.isArray(data) ? data[6] : data.imageUrls) || [],
+        makerStake: Array.isArray(data) ? data[7] : data.makerStake,
+        takerStake: Array.isArray(data) ? data[8] : data.takerStake,
+        expiry: Number(Array.isArray(data) ? data[9] : data.expiry),
+        status: Number(Array.isArray(data) ? data[10] : data.status),
+        makerIsYes: Array.isArray(data) ? data[11] : data.makerIsYes,
+        yesTokenId: (yesTokenId && yesTokenId !== '0') ? yesTokenId : null,
+        noTokenId: (noTokenId && noTokenId !== '0') ? noTokenId : null,
       });
     } catch (err: any) {
       console.error('Error fetching parlay:', err);

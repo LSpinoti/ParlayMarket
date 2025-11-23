@@ -2,10 +2,10 @@
   "network": "coston2",
   "chainId": "114",
   "deployer": "0x04D65f23D3d7bb3DF854D0c22d58e24802f84d29",
-  "timestamp": "2025-11-22T18:27:50.178Z",
+  "timestamp": "2025-11-22T21:40:30.077Z",
   "contracts": {
-    "flarePolymarketOracle": "0x68AF590FBF95BE2278e763959a22E22af2528cfD",
-    "parlayMarket": "0x856E8BB6c166C486D17B690c43D95cC5ce6580e6",
-    "parlayToken": "0x08841716A363c7CD7Ea7DFE642e2F62052c057D3"
+    "flarePolymarketOracle": "0x56E3Bd2e7EbF1A3057f104a3a71cBCD4Eb0b2694",
+    "parlayMarket": "0x0939b59C16ce14576747991928ac24F70EfF2443",
+    "parlayToken": "0x14066F227cDfD359a022713626E815D3c359b707"
   }
 }

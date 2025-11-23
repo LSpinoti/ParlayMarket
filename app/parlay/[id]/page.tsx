@@ -6,7 +6,7 @@ import { useParlay } from '@/hooks/useParlays';
 import { useWeb3 } from '@/hooks/useWeb3';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getParlayStatusString, getOutcomeString, CONTRACT_ADDRESSES } from '@/lib/contracts';
-import { formatEther, parseEther, getParlayMarketContract, importNFTToMetamask, getParlayTokenIds } from '@/lib/web3';
+import { formatEther, parseEther, getParlayMarketContract, importNFTToMetamask, getParlayTokenIds, getTokenIdsFromReceipt } from '@/lib/web3';
 
 export default function ParlayDetailPage() {
   const params = useParams();
@@ -35,6 +35,13 @@ export default function ParlayDetailPage() {
   const isExpired = parlay.expiry * 1000 < Date.now();
   const isMaker = account?.toLowerCase() === parlay.maker.toLowerCase();
   const isTaker = account?.toLowerCase() === parlay.taker.toLowerCase();
+  const userSide = isMaker 
+    ? (parlay.makerIsYes ? 'YES' : 'NO')
+    : isTaker 
+    ? (parlay.makerIsYes ? 'NO' : 'YES')
+    : null;
+
+  console.log("parlay + status", parlay, status);
   
   // Determine the display status text
   const displayStatus = status === 'Created' 
@@ -57,8 +64,13 @@ export default function ParlayDetailPage() {
       });
       const receipt = await tx.wait();
       
-      // Get token IDs from the event
-      const tokenIds = await getParlayTokenIds(parlayId, 'coston2');
+      // Extract token IDs directly from the transaction receipt (instant, no block search!)
+      let tokenIds = await getTokenIdsFromReceipt(receipt, contract);
+      
+      // Fallback to contract read if receipt parsing fails
+      if (!tokenIds.yesTokenId || !tokenIds.noTokenId) {
+        tokenIds = await getParlayTokenIds(parlayId, 'coston2');
+      }
       
       // Prompt Metamask to import the NFT for the taker
       if (tokenIds.yesTokenId || tokenIds.noTokenId) {
@@ -173,6 +185,31 @@ export default function ParlayDetailPage() {
           </div>
         )}
 
+        {/* User Position Indicator */}
+        {(isMaker || isTaker) && userSide && (
+          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-300 text-sm mb-1">Your Position</div>
+                <div className="text-lg font-semibold text-white">
+                  You are on the <span className={`font-bold ${
+                    userSide === 'YES' ? 'text-green-400' : 'text-red-400'
+                  }`}>{userSide}</span> side
+                  {isMaker && <span className="text-gray-400 text-sm ml-2">(Maker)</span>}
+                  {isTaker && <span className="text-gray-400 text-sm ml-2">(Taker)</span>}
+                </div>
+              </div>
+              <div className={`px-4 py-2 rounded-lg font-bold text-lg ${
+                userSide === 'YES' 
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+                {userSide}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Participants */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <div className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
@@ -180,7 +217,6 @@ export default function ParlayDetailPage() {
             <div className="font-mono text-sm">{parlay.maker}</div>
             <div className="text-lg font-bold mt-2">{formatEther(parlay.makerStake)} FLR</div>
           </div>
-
           <div className="p-4 bg-white/5 backdrop-blur-xl/50 border border-white/10 rounded-2xl">
             <div className="text-gray-400 text-sm mb-1">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
             <div className="font-mono text-sm">

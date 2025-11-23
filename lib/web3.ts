@@ -1,6 +1,6 @@
 'use client';
 
-import { BrowserProvider, Contract, formatEther, parseEther } from 'ethers';
+import { BrowserProvider, Contract, formatEther, parseEther, EventLog } from 'ethers';
 import { CONTRACT_ADDRESSES, ABIS, ChainName } from './contracts';
 
 let provider: BrowserProvider | null = null;
@@ -140,7 +140,8 @@ export async function importNFTToMetamask(
 }
 
 /**
- * Get token IDs for a parlay by querying the contract directly
+ * Get token IDs for a parlay by reading directly from contract storage
+ * This is much faster than searching through blocks!
  * @param parlayId The parlay ID
  * @param chain The chain name
  */
@@ -151,18 +152,76 @@ export async function getParlayTokenIds(
   try {
     const contract = await getParlayMarketContract(chain);
     
-    // Query the parlays mapping directly to get token IDs
-    const parlay = await contract.parlays(parlayId);
+    // Use the public 'parlays' mapping which returns the full struct including token IDs
+    // This is a direct storage read - no block searching needed!
+    const parlayData = await contract.parlays(parlayId);
     
-    const yesTokenId = parlay.yesTokenId?.toString() || '0';
-    const noTokenId = parlay.noTokenId?.toString() || '0';
+    // The mapping returns: (id, maker, taker, name, conditionIds, requiredOutcomes, 
+    // legNames, imageUrls, makerStake, takerStake, expiry, status, makerIsYes, yesTokenId, noTokenId)
+    // Handle both object and array return formats from ethers
+    let yesTokenId: string | null = null;
+    let noTokenId: string | null = null;
     
-    return {
-      yesTokenId: yesTokenId !== '0' ? yesTokenId : null,
-      noTokenId: noTokenId !== '0' ? noTokenId : null,
-    };
+    if (Array.isArray(parlayData)) {
+      // If returned as array, token IDs are at indices 13 and 14
+      yesTokenId = parlayData[13]?.toString() || null;
+      noTokenId = parlayData[14]?.toString() || null;
+    } else if (parlayData && typeof parlayData === 'object') {
+      // If returned as object with named properties
+      yesTokenId = parlayData.yesTokenId?.toString() || null;
+      noTokenId = parlayData.noTokenId?.toString() || null;
+    }
+    
+    // Return token IDs if they exist and are non-zero
+    if (yesTokenId && yesTokenId !== '0' && noTokenId && noTokenId !== '0') {
+      return {
+        yesTokenId: yesTokenId,
+        noTokenId: noTokenId,
+      };
+    }
+    
+    return { yesTokenId: null, noTokenId: null };
+  } catch (error: any) {
+    console.warn(`Error reading token IDs from contract for parlay ${parlayId}:`, error.message);
+    return { yesTokenId: null, noTokenId: null };
+  }
+}
+
+/**
+ * Extract token IDs from a transaction receipt
+ * Use this when you have the receipt from fillParlay transaction
+ * @param receipt The transaction receipt
+ * @param contract The ParlayMarket contract instance
+ */
+export async function getTokenIdsFromReceipt(
+  receipt: any,
+  contract: Contract
+): Promise<{ yesTokenId: string | null; noTokenId: string | null }> {
+  try {
+    // In ethers v6, receipt.logs contains the event logs
+    // Find the ParlayFilled event in the receipt
+    for (const log of receipt.logs || []) {
+      try {
+        // Try to parse the log using the contract interface
+        const parsed = contract.interface.parseLog({
+          topics: log.topics || [],
+          data: log.data || '0x'
+        });
+        
+        if (parsed && parsed.name === 'ParlayFilled' && parsed.args) {
+          const yesTokenId = parsed.args.yesTokenId?.toString() || null;
+          const noTokenId = parsed.args.noTokenId?.toString() || null;
+          if (yesTokenId && noTokenId) {
+            return { yesTokenId, noTokenId };
+          }
+        }
+      } catch (parseError) {
+        // Not the event we're looking for, continue
+        continue;
+      }
+    }
   } catch (error) {
-    console.error('Error fetching token IDs:', error);
+    console.warn('Error extracting token IDs from receipt:', error);
   }
   
   return { yesTokenId: null, noTokenId: null };
