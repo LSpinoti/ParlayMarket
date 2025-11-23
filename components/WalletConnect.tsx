@@ -56,7 +56,7 @@ export default function WalletConnect() {
       ) : !hasMetaMask ? (
         <button
           onClick={handleConnect}
-          className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition-colors flex items-center gap-2"
+          className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-full transition-colors flex items-center gap-2"
         >
           <span>🦊</span>
           <span>Install MetaMask</span>
@@ -65,7 +65,7 @@ export default function WalletConnect() {
         <button
           onClick={handleConnect}
           disabled={isConnecting}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold rounded-full transition-colors"
+          className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-50 text-white font-semibold rounded-full transition-colors"
         >
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>

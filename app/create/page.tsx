@@ -388,13 +388,13 @@ export default function CreateParlayPage() {
               onClick={() => setShowMarketBrowser(true)}
               className="w-1/2 px-4 py-2 bg-white text-black hover:bg-gray-200 rounded-2xl text-sm font-semibold transition-colors"
             >
-              Browse Markets
+              Select Bet
             </button>
             <button
               onClick={addLeg}
               className="w-1/2 px-4 py-2 bg-white text-black hover:bg-gray-200 rounded-2xl text-sm font-semibold transition-colors"
             >
-              + Manual Entry
+              + Add Leg
             </button>
           </div>
         </div>

@@ -148,11 +148,11 @@ export default function ParlayDetailPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-16">
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white"
         >
           ← Back
         </button>

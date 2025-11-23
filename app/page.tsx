@@ -1,11 +1,29 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useCallback } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { useParlays } from '@/hooks/useParlays';
+import ParlayCard from '@/components/ParlayCard';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function Home() {
+  const { parlays, isLoading, error, refresh } = useParlays('coston2');
+  const [animationComplete, setAnimationComplete] = useState(false);
+
+  // Filter to show only 'Created' parlays (available to take)
+  const availableParlays = parlays.filter(p => p.status === 0);
+
+  const dotLottieRefCallback = useCallback((dotLottie: any) => {
+    if (dotLottie) {
+      dotLottie.addEventListener('complete', () => {
+        setAnimationComplete(true);
+      });
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
       {/* Spotlight effect */}
       <div className="absolute inset-0">
         {/* Main spotlight cone */}
@@ -35,14 +53,6 @@ export default function Home() {
 
       {/* Dynamic side gradient lines with glow */}
       <style jsx>{`
-        @keyframes slideDown {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-        @keyframes slideUp {
-          0% { transform: translateY(100%); }
-          100% { transform: translateY(-100%); }
-        }
         @keyframes glow {
           0%, 100% { opacity: 0.3; box-shadow: 0 0 4px rgba(255,255,255,0.3); }
           50% { opacity: 1; box-shadow: 0 0 12px rgba(255,255,255,0.8); }
@@ -90,7 +100,7 @@ export default function Home() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center min-h-screen px-4 pt-32">
+      <div className="relative z-10 flex flex-col items-center px-4 pt-32">
         {/* Main heading */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-center mb-4 tracking-tight">
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500">
@@ -103,18 +113,52 @@ export default function Home() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-gray-400 text-center max-w-xl mb-6 text-sm">
+        <p className="text-gray-400 text-center max-w-xl mb-12 text-sm">
           The Future Of Prediction Markets With ParlayMarket Today.
         </p>
 
+        {/* Available Parlays Section */}
+        <div className="w-full max-w-6xl mx-auto mb-16">
+
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 mb-6">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
+          ) : availableParlays.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400 mb-4">Time to be Creative</p>
+              <Link
+                href="/create"
+                className="inline-block px-6 py-3 bg-white text-black rounded-full font-medium text-sm hover:bg-gray-200 transition-colors"
+              >
+                Create Your First Parlay
+              </Link>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableParlays.map((parlay, index) => (
+                <ParlayCard key={parlay.id} parlay={parlay} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Lottie Animation - behind everything except background */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-80 z-0">
+      <div
+        className={`absolute inset-0 flex items-center justify-center pointer-events-none z-0 transition-opacity duration-300 ${animationComplete ? 'opacity-0' : 'opacity-80'}`}
+      >
         <div className="w-full max-w-3xl transform rotate-90">
           <DotLottieReact
             src="https://lottie.host/bba9c817-7818-4830-b7b1-343c068425b2/mtplIxOJfh.lottie"
             autoplay
+            dotLottieRefCallback={dotLottieRefCallback}
           />
         </div>
       </div>

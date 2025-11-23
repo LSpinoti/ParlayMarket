@@ -8,9 +8,10 @@ import { useWeb3 } from '@/hooks/useWeb3';
 
 interface ParlayCardProps {
   parlay: ParlayData;
+  index?: number;
 }
 
-export default function ParlayCard({ parlay }: ParlayCardProps) {
+export default function ParlayCard({ parlay, index = 0 }: ParlayCardProps) {
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
   const { account } = useWeb3();
   const status = getParlayStatusString(parlay.status);
@@ -40,9 +41,22 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
     Invalid: 'bg-red-500/10 text-red-500 border-red-500/20',
   };
 
+  // Calculate animation delay based on position from center
+  // For a 3-column grid: col 0 = left, col 1 = center, col 2 = right
+  const col = index % 3;
+  const row = Math.floor(index / 3);
+  const distanceFromCenter = Math.abs(col - 1); // 0 for center, 1 for sides
+  const animationDelay = 1.2 + (row * 0.1) + (distanceFromCenter * 0.15); // 2 second initial delay
+
   return (
     <Link href={`/parlay/${parlay.id}`}>
-      <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl hover:border-blue-500/50 transition-all cursor-pointer">
+      <div
+        className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl hover:border-white/30 transition-all cursor-pointer animate-fade-in font-sans"
+        style={{
+          animationDelay: `${animationDelay}s`,
+          animationFillMode: 'backwards'
+        }}
+      >
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-xl font-bold text-white mb-2">

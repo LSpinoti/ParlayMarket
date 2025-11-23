@@ -85,8 +85,8 @@ export default function MarketplacePage() {
   // Not connected
   if (!account) {
     return (
-      <div className="min-h-screen bg-black p-8">
-        <div className="max-w-4xl mx-auto text-center py-20">
+      <div className="min-h-screen p-8">
+        <div className="max-w-4xl mx-auto text-center py-20 pt-16">
           <h1 className="text-4xl font-bold text-white mb-4">Parlay Marketplace</h1>
           <p className="text-gray-400 mb-8">
             Buy and sell parlay positions from other users
@@ -104,8 +104,8 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen p-8">
+      <div className="max-w-6xl mx-auto pt-16">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -115,7 +115,7 @@ export default function MarketplacePage() {
           <button
             onClick={refresh}
             disabled={isLoading}
-            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors disabled:opacity-50"
           >
             {isLoading ? 'Loading...' : 'Refresh'}
           </button>
@@ -139,8 +139,8 @@ export default function MarketplacePage() {
             onClick={() => setActiveTab('browse')}
             className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
               activeTab === 'browse'
-                ? 'bg-white/10 text-white border border-white/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-white text-black'
+                : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
             }`}
           >
             Browse Listings
@@ -149,8 +149,8 @@ export default function MarketplacePage() {
             onClick={() => setActiveTab('sell')}
             className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
               activeTab === 'sell'
-                ? 'bg-white/10 text-white border border-white/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-white text-black'
+                : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
             }`}
           >
             Sell Position
