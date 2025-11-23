@@ -4,6 +4,7 @@
     "function fillParlay(uint256 parlayId) external payable",
     "function cancelParlay(uint256 parlayId) external",
     "function resolveParlay(uint256 parlayId) external",
+    "function directResolve(uint256 parlayId, bool yesWins) external",
     "function getParlay(uint256 parlayId) external view returns (address maker, address taker, string memory name, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, string[] memory legNames, string[] memory imageUrls, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes, uint256 yesTokenId, uint256 noTokenId)",
     "function parlays(uint256 parlayId) external view returns (uint256 id, address maker, address taker, string memory name, bytes32[] memory conditionIds, uint8[] memory requiredOutcomes, string[] memory legNames, string[] memory imageUrls, uint256 makerStake, uint256 takerStake, uint256 expiry, uint8 status, bool makerIsYes, uint256 yesTokenId, uint256 noTokenId)",
     "function getTotalParlays() external view returns (uint256)",

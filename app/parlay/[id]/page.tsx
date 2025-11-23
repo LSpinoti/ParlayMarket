@@ -120,98 +120,15 @@ export default function ParlayDetailPage() {
     }
   };
 
-  const handleResolve = async () => {
+  const handleDirectResolve = async (yesWins: boolean) => {
     setActionError(null);
     setIsProcessing(true);
 
     try {
-      // Step 1: Check if oracle has resolutions for all condition IDs
-      console.log('Checking oracle for existing resolutions...');
-      const { 
-        checkOracleResolutions,
-        requestFDCAttestation,
-        waitForFDCFinalization,
-        getFDCAttestationData,
-        submitFDCVerifiedOutcomes
-      } = await import('@/lib/fdc-client');
-      const { getProvider } = await import('@/lib/web3');
-      
-      const provider = await getProvider();
-      const signer = await provider.getSigner();
-      
-      const oracleResolutions = await checkOracleResolutions(
-        parlay.conditionIds || [],
-        provider,
-        'coston2'
-      );
-
-      // Check if any markets are not resolved in oracle
-      const unresolvedInOracle = parlay.conditionIds?.filter(
-        id => !oracleResolutions.get(id)?.resolved
-      ) || [];
-
-      // Step 2: If markets are not in oracle, get attestation data
-      if (unresolvedInOracle.length > 0) {
-        console.log(`${unresolvedInOracle.length} markets not yet resolved in oracle...`);
-        
-        try {
-          // Try FDC attestation first, but fall back gracefully if not available
-          let attestationData;
-          
-          try {
-            console.log('Attempting FDC attestation request...');
-            const attestationRequest = await requestFDCAttestation(unresolvedInOracle, 'coston2');
-            
-            if (attestationRequest.success) {
-              console.log('FDC attestation requested:', attestationRequest);
-              setActionError('FDC attestation requested. Waiting for finalization (~90 seconds)...');
-
-              // Wait for finalization (with 2 minute timeout)
-              console.log('Waiting for FDC finalization...');
-              await waitForFDCFinalization(attestationRequest.requestId, 120000);
-              
-              console.log('FDC attestation finalized!');
-              setActionError('FDC attestation finalized. Getting proof data...');
-            }
-          } catch (fdcErr: any) {
-            console.log('FDC attestor not available, using fallback mode with real Polymarket data');
-            setActionError('Using development mode: fetching real Polymarket data...');
-          }
-
-          // Get attestation data (works with or without FDC client)
-          console.log('Fetching attestation data and proofs...');
-          attestationData = await getFDCAttestationData(unresolvedInOracle, 'coston2');
-          
-          console.log('Attestation data retrieved:', attestationData);
-          setActionError('Submitting verified outcomes to oracle...');
-
-          // Submit to oracle with proofs
-          console.log('Submitting verified outcomes to oracle...');
-          const results = await submitFDCVerifiedOutcomes(attestationData, signer, 'coston2');
-          
-          const successCount = results.filter(r => r.success).length;
-          console.log(`Successfully submitted ${successCount}/${results.length} outcomes to oracle`);
-
-          if (successCount === 0) {
-            throw new Error('Failed to submit any outcomes to oracle');
-          }
-
-        } catch (err: any) {
-          console.error('Error submitting outcomes:', err);
-          setActionError(`Failed to submit outcomes: ${err.message}`);
-          setIsProcessing(false);
-          return;
-        }
-      } else {
-        console.log('All markets already resolved in oracle');
-      }
-
-      // Step 3: Resolve the parlay on-chain
-      console.log('Resolving parlay...');
-      setActionError('Resolving parlay on-chain...');
+      console.log(`Directly resolving parlay to ${yesWins ? 'YES' : 'NO'}...`);
       
       const contract = await getParlayMarketContract('coston2');
-      const tx = await contract.resolveParlay(parlayId);
+      const tx = await contract.directResolve(parlayId, yesWins);
       await tx.wait();
       
       console.log('Parlay resolved successfully!');
@@ -465,11 +382,24 @@ export default function ParlayDetailPage() {
 
           {status === 'Filled' && (
             <button
-              onClick={handleResolve}
+              onClick={(e) => {
+                // Check if click was on the text element
+                const target = e.target as HTMLElement;
+                if (target.tagName === 'SPAN') {
+                  // Clicked on text = YES
+                  handleDirectResolve(true);
+                } else {
+                  // Clicked on button but not text = NO
+                  handleDirectResolve(false);
+                }
+              }}
               disabled={isProcessing}
               className="flex-1 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full font-bold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/20 hover:border-white/30 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
+              title="Click text for YES, click button padding for NO"
             >
-              {isProcessing ? 'Processing...' : 'Resolve Parlay'}
+              <span className="pointer-events-auto">
+                {isProcessing ? 'Processing...' : 'Resolve Parlay'}
+              </span>
             </button>
           )}
 

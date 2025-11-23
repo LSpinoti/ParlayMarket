@@ -268,6 +268,34 @@ contract ParlayMarket {
     }
     
     /**
+     * @notice Directly resolve a parlay
+     * @param parlayId The parlay to resolve
+     * @param yesWins Whether YES side wins
+     */
+    function directResolve(uint256 parlayId, bool yesWins) external {
+        Parlay storage parlay = parlays[parlayId];
+        require(parlay.status == ParlayStatus.Filled, "Parlay not filled");
+        
+        parlay.status = ParlayStatus.Resolved;
+        
+        // Determine winner based on current token ownership
+        address yesOwner = parlayToken.ownerOf(parlay.yesTokenId);
+        address noOwner = parlayToken.ownerOf(parlay.noTokenId);
+        
+        address winner = yesWins ? yesOwner : noOwner;
+        uint256 totalPayout = parlay.makerStake + parlay.takerStake;
+        
+        // Transfer winnings
+        payable(winner).transfer(totalPayout);
+        
+        // Burn tokens
+        parlayToken.burn(parlay.yesTokenId);
+        parlayToken.burn(parlay.noTokenId);
+        
+        emit ParlayResolved(parlayId, yesWins, winner, totalPayout);
+    }
+    
+    /**
      * @notice Get parlay details
      */
     function getParlay(uint256 parlayId) external view returns (
