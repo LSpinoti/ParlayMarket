@@ -55,7 +55,11 @@ export function useParlays(chain: ChainName = 'coston2') {
                 const filter = contract.filters.ParlayResolved(i);
                 const events = await contract.queryFilter(filter);
                 if (events.length > 0) {
-                  yesWins = events[0].args?.yesWins ?? null;
+                  const event = events[0];
+                  // Check if event is EventLog (has args property)
+                  if ('args' in event) {
+                    yesWins = event.args?.yesWins ?? null;
+                  }
                 }
               } catch (err) {
                 console.warn(`Failed to fetch resolution for parlay ${i}:`, err);
@@ -148,7 +152,11 @@ export function useParlay(parlayId: number, chain: ChainName = 'coston2') {
           const filter = contract.filters.ParlayResolved(parlayId);
           const events = await contract.queryFilter(filter);
           if (events.length > 0) {
-            yesWins = events[0].args?.yesWins ?? null;
+            const event = events[0];
+            // Check if event is EventLog (has args property)
+            if ('args' in event) {
+              yesWins = event.args?.yesWins ?? null;
+            }
           }
         } catch (err) {
           console.warn(`Failed to fetch resolution for parlay ${parlayId}:`, err);
