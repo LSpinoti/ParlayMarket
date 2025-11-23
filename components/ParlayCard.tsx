@@ -28,7 +28,7 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
     : null;
   
   // Determine the display status text
-  const displayStatus = status === 'Created'
+  let displayStatus = status === 'Created'
     ? `Available for ${parlay.makerIsYes ? 'NO' : 'YES'}`
     : status;
   
