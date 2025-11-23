@@ -164,7 +164,7 @@ export default function CreateParlayPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto animate-fade-in-up">
       <h1 className="text-4xl font-bold mb-8">Create Parlay</h1>
 
       {error && (
@@ -182,7 +182,7 @@ export default function CreateParlayPage() {
             value={parlayName}
             onChange={(e) => setParlayName(e.target.value)}
             placeholder="Enter a name for your parlay (e.g., 'Election 2026 Parlay')"
-            className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+            className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
           />
         </div>
 
@@ -208,11 +208,11 @@ export default function CreateParlayPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Search markets (e.g., Bitcoin, Trump, Election)..."
-                    className="flex-1 px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="flex-1 px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                   />
                   <button
                     onClick={handleSearch}
-                    className="px-6 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
+                    className="px-6 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
                   >
                     Search
                   </button>
@@ -274,14 +274,14 @@ export default function CreateParlayPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => addMarketToParlay(market, 'yes')}
-                              className="px-4 py-2 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40 min-w-[80px]"
+                              className="px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/20 hover:border-white/30 min-w-[80px]"
                             >
                               YES
                               <div className="text-xs opacity-80">{(market.yesPrice * 100).toFixed(0)}¢</div>
                             </button>
                             <button
                               onClick={() => addMarketToParlay(market, 'no')}
-                              className="px-4 py-2 bg-red-600/20 backdrop-blur-xl border border-red-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-red-600/30 hover:border-red-500/40 min-w-[80px]"
+                              className="px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20 min-w-[80px]"
                             >
                               NO
                               <div className="text-xs opacity-80">{(market.noPrice * 100).toFixed(0)}¢</div>
@@ -330,7 +330,7 @@ export default function CreateParlayPage() {
                   {legs.length > 1 && (
                     <button
                       onClick={() => removeLeg(index)}
-                      className="px-3 py-1.5 text-red-500 hover:text-red-400 text-sm shrink-0 bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-red-500/20 hover:border-red-500/30"
+                      className="px-3 py-1.5 text-white/60 hover:text-white text-sm shrink-0 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
                     >
                       Remove
                     </button>
@@ -347,7 +347,7 @@ export default function CreateParlayPage() {
                       value={leg.name}
                       onChange={(e) => updateLeg(index, 'name', e.target.value)}
                       placeholder="Enter a name for this leg"
-                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                     />
                   </div>
 
@@ -360,7 +360,7 @@ export default function CreateParlayPage() {
                       value={leg.conditionId}
                       onChange={(e) => updateLeg(index, 'conditionId', e.target.value)}
                       placeholder="0x1234..."
-                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                     />
                   </div>
 
@@ -371,7 +371,7 @@ export default function CreateParlayPage() {
                     <select
                       value={leg.requiredOutcome}
                       onChange={(e) => updateLeg(index, 'requiredOutcome', parseInt(e.target.value))}
-                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                     >
                       <option value={0}>NO</option>
                       <option value={1}>YES</option>
@@ -385,13 +385,13 @@ export default function CreateParlayPage() {
           <div className="flex gap-4 mt-6">
             <button
               onClick={() => setShowMarketBrowser(true)}
-              className="w-1/2 px-4 py-2 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40"
+              className="w-1/2 px-4 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 text-blue-400"
             >
-              📊 Browse Markets
+              Browse Markets
             </button>
             <button
               onClick={addLeg}
-              className="w-1/2 px-4 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
+              className="w-1/2 px-4 py-2 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40 text-green-400"
             >
               + Manual Entry
             </button>
@@ -414,7 +414,7 @@ export default function CreateParlayPage() {
                   value={makerStake}
                   onChange={(e) => setMakerStake(e.target.value)}
                   placeholder="10.0"
-                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                 />
               </div>
 
@@ -428,7 +428,7 @@ export default function CreateParlayPage() {
                   value={takerStake}
                   onChange={(e) => setTakerStake(e.target.value)}
                   placeholder="10.0"
-                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
                 />
               </div>
             </div>
@@ -468,14 +468,14 @@ export default function CreateParlayPage() {
                 value={expiryDays}
                 onChange={(e) => setExpiryDays(e.target.value)}
                 min="1"
-                className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-white/50"
               />
             </div>
 
             {makerStake && takerStake && (
-              <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
                 <div className="text-sm text-neutral-400 mb-1">Total Pot:</div>
-                <div className="text-2xl font-bold text-blue-500">
+                <div className="text-2xl font-bold text-white">
                   {(parseFloat(makerStake) + parseFloat(takerStake)).toFixed(2)} FLR
                 </div>
               </div>
@@ -487,7 +487,7 @@ export default function CreateParlayPage() {
         <button
           onClick={handleCreate}
           disabled={isCreating}
-          className="w-full py-4 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-bold text-lg transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
+          className="w-full py-4 bg-white text-black backdrop-blur-xl border border-white/30 rounded-full font-bold text-lg transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/90 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50 disabled:text-white"
         >
           {isCreating ? 'Creating Parlay...' : isConnected ? 'Create Parlay' : 'Connect Wallet to Create'}
         </button>

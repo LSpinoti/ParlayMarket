@@ -17,7 +17,7 @@ export default function MyParlaysPage() {
         <p className="text-neutral-400 mb-6">Connect your wallet to view your parlays</p>
         <button
           onClick={() => connect()}
-          className="px-8 py-3 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
+          className="px-8 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
         >
           Connect Wallet
         </button>
@@ -32,7 +32,7 @@ export default function MyParlaysPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto animate-fade-in-up">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">My Parlays</h1>
         <button
@@ -58,7 +58,7 @@ export default function MyParlaysPage() {
           <p className="text-neutral-400 mb-6">You haven't created or filled any parlays</p>
           <a
             href="/create"
-            className="inline-block px-8 py-3 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
+            className="inline-block px-8 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
           >
             Create Your First Parlay
           </a>

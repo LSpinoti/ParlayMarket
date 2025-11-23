@@ -43,12 +43,12 @@ export default function WalletConnect() {
       
       {isConnected ? (
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-green-500/10 backdrop-blur-xl border border-green-500/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
-            <span className="text-green-500 font-mono text-sm">{formatAddress(account!)}</span>
+          <div className="px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
+            <span className="text-white font-mono text-sm">{formatAddress(account!)}</span>
           </div>
           <button
             onClick={disconnect}
-            className="px-4 py-2 bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-full text-red-500 hover:bg-red-500/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-red-500/30"
+            className="px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-white hover:bg-white/10 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-white/20"
           >
             Disconnect
           </button>
@@ -56,7 +56,7 @@ export default function WalletConnect() {
       ) : !hasMetaMask ? (
         <button
           onClick={handleConnect}
-          className="px-6 py-2 bg-orange-600/20 backdrop-blur-xl border border-orange-500/30 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-orange-600/30 hover:border-orange-500/40 flex items-center gap-2"
+          className="px-6 py-2 bg-white/5 backdrop-blur-xl border border-white/10 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20 flex items-center gap-2"
         >
           <span>🦊</span>
           <span>Install MetaMask</span>
@@ -65,7 +65,7 @@ export default function WalletConnect() {
         <button
           onClick={handleConnect}
           disabled={isConnecting}
-          className="px-6 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
+          className="px-6 py-2 bg-white/5 backdrop-blur-xl border border-white/10 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20 disabled:opacity-50"
         >
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>

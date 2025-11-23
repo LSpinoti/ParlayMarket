@@ -28,47 +28,56 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
     : null;
   
   // Determine the display status text
-  const displayStatus = status === 'Created' 
-    ? `Waiting for ${parlay.makerIsYes ? 'NO' : 'YES'} taker`
+  const displayStatus = status === 'Created'
+    ? `Available for ${parlay.makerIsYes ? 'NO' : 'YES'}`
     : status;
 
   const statusColors: Record<string, string> = {
-    Created: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-    Filled: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    Resolved: 'bg-green-500/10 text-green-500 border-green-500/20',
-    Cancelled: 'bg-neutral-500/10 text-neutral-500 border-neutral-500/20',
-    Invalid: 'bg-red-500/10 text-red-500 border-red-500/20',
+    Created: 'bg-green-500/20 text-green-400 border-green-500/30',
+    Filled: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    Resolved: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+    Cancelled: 'bg-neutral-500/20 text-neutral-400 border-neutral-500/30',
+    Invalid: 'bg-red-500/20 text-red-400 border-red-500/30',
   };
+
+  // Card border colors based on status
+  const cardBorderColors: Record<string, string> = {
+    Created: 'border-green-500/30 hover:border-green-500/50',
+    Filled: 'border-blue-500/30 hover:border-blue-500/50',
+    Resolved: 'border-purple-500/30 hover:border-purple-500/50',
+    Cancelled: 'border-neutral-600 hover:border-neutral-500',
+    Invalid: 'border-red-500/30 hover:border-red-500/50',
+  };
+
+  // Yellow border if user is in this parlay
+  const borderClass = isInParlay
+    ? 'border-yellow-500/30 hover:border-yellow-500/50'
+    : cardBorderColors[status];
 
   return (
     <Link href={`/parlay/${parlay.id}`}>
-      <div className="p-6 bg-neutral-800/50 border border-neutral-700 rounded-xl hover:border-white/30 transition-all cursor-pointer">
+      <div className={`p-4 bg-neutral-800/50 border rounded-xl transition-all cursor-pointer h-[240px] flex flex-col ${borderClass}`}>
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">
               {parlay.name || `Parlay #${parlay.id}`}
             </h3>
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] ${statusColors[status]}`}>
-              {displayStatus}
-            </span>
-          </div>
-          {isInParlay && userSide && (
-            <div className="text-right">
-              <div className="text-neutral-400 text-sm mb-1">Your Position</div>
-              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold inline-block backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border ${
-                userSide === 'YES' 
-                  ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                  : 'bg-red-500/20 text-red-400 border-red-500/30'
-              }`}>
-                {userSide}
+            <div className="flex gap-2 items-center">
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] ${statusColors[status]}`}>
+                {displayStatus}
               </span>
+              {isInParlay && userSide && (
+                <span className="px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                  Your Position: {userSide}
+                </span>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Market Images */}
         {parlay.imageUrls && parlay.imageUrls.length > 0 && (
-          <div className="mb-4 overflow-y-scroll max-h-[103px] space-y-2">
+          <div className="mb-4 overflow-y-scroll max-h-[103px] space-y-2 flex-1">
             {Array.from({ length: Math.ceil(parlay.imageUrls.length / 2) }).map((_, rowIdx) => {
               const startIdx = rowIdx * 2;
               const legsInRow = parlay.imageUrls.slice(startIdx, startIdx + 2);
@@ -124,7 +133,7 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
           </div>
         )}
 
-        <div className="space-y-1">
+        <div className="space-y-1 mt-auto">
           <div className="grid grid-cols-2 gap-x-8">
             <div className="space-y-1">
               <div className="flex justify-between text-sm">

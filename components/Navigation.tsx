@@ -13,8 +13,8 @@ export default function Navigation() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/create', label: 'Create Parlay' },
     { href: '/my-parlays', label: 'My Parlays' },
+    { href: '/create', label: 'Create Parlay' },
   ];
 
   useEffect(() => {
@@ -38,12 +38,12 @@ export default function Navigation() {
   }, [pathname]);
 
   return (
-    <nav className="border-b border-neutral-900 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="sticky top-0 z-50">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-8">
             <Link href="/" className="text-2xl font-bold text-white">
-              <span className="text-blue-500">Parlay</span>Market
+              <span className="text-white">Parlay</span>Market
             </Link>
             
             {/* Centered Pill Navigation - Liquid Glass */}
