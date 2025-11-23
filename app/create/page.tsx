@@ -164,7 +164,7 @@ export default function CreateParlayPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <h1 className="text-4xl font-bold mb-8">Create Parlay</h1>
 
       {error && (
@@ -175,27 +175,27 @@ export default function CreateParlayPage() {
 
       <div className="space-y-6">
         {/* Parlay Name */}
-        <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl">
+        <div className="p-6 bg-neutral-800/50 border border-neutral-700 rounded-xl">
           <h2 className="text-xl font-bold mb-4">Parlay Name</h2>
           <input
             type="text"
             value={parlayName}
             onChange={(e) => setParlayName(e.target.value)}
             placeholder="Enter a name for your parlay (e.g., 'Election 2026 Parlay')"
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+            className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
 
         {/* Market Browser */}
         {showMarketBrowser && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-gray-700">
+            <div className="bg-neutral-900 border border-neutral-700 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-neutral-700">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold">Browse Polymarket Markets</h2>
                   <button
                     onClick={() => setShowMarketBrowser(false)}
-                    className="text-gray-400 hover:text-white text-2xl"
+                    className="text-neutral-400 hover:text-white text-2xl w-8 h-8 flex items-center justify-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:bg-white/10"
                   >
                     ×
                   </button>
@@ -208,11 +208,11 @@ export default function CreateParlayPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Search markets (e.g., Bitcoin, Trump, Election)..."
-                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="flex-1 px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                   <button
                     onClick={handleSearch}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                    className="px-6 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
                   >
                     Search
                   </button>
@@ -221,11 +221,11 @@ export default function CreateParlayPage() {
 
               <div className="flex-1 overflow-y-auto p-6">
                 {isLoadingMarkets ? (
-                  <div className="text-center py-12 text-gray-400">
+                  <div className="text-center py-12 text-neutral-400">
                     Loading markets...
                   </div>
                 ) : markets.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">
+                  <div className="text-center py-12 text-neutral-400">
                     No markets found
                   </div>
                 ) : (
@@ -233,7 +233,7 @@ export default function CreateParlayPage() {
                     {markets.map((market) => (
                       <div
                         key={market.id}
-                        className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
+                        className="p-4 bg-neutral-800/50 border border-neutral-700 rounded-lg hover:border-neutral-600 transition-colors"
                       >
                         <div className="flex justify-between items-center gap-4">
                           {/* Market Image on the left */}
@@ -243,11 +243,11 @@ export default function CreateParlayPage() {
                               <img
                                 src={market.image}
                                 alt={market.question}
-                                className="w-14 h-14 rounded-lg object-cover bg-gray-700 border border-gray-700"
+                                className="w-14 h-14 rounded-lg object-cover bg-neutral-700 border border-neutral-700"
                               />
                             ) : (
                               // Fallback placeholder image
-                              <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-gray-700 border border-gray-700 text-gray-400 text-xl font-bold">
+                              <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-neutral-700 border border-neutral-700 text-neutral-400 text-xl font-bold">
                                 🪧
                               </div>
                             )}
@@ -255,13 +255,13 @@ export default function CreateParlayPage() {
                           <div className="flex-1">
                             <h3 className="font-semibold mb-1">{market.question}</h3>
                             {market.description && (
-                              <p className="text-sm text-gray-400 mb-2 line-clamp-2">
+                              <p className="text-sm text-neutral-400 mb-2 line-clamp-2">
                                 {market.description}
                               </p>
                             )}
-                            <div className="flex gap-4 text-xs text-gray-500">
+                            <div className="flex gap-4 text-xs text-neutral-500">
                               {market.category && (
-                                <span className="px-2 py-1 bg-gray-700 rounded">
+                                <span className="px-2 py-1 bg-neutral-700 rounded">
                                   {market.category}
                                 </span>
                               )}
@@ -274,14 +274,14 @@ export default function CreateParlayPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => addMarketToParlay(market, 'yes')}
-                              className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors min-w-[80px]"
+                              className="px-4 py-2 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40 min-w-[80px]"
                             >
                               YES
                               <div className="text-xs opacity-80">{(market.yesPrice * 100).toFixed(0)}¢</div>
                             </button>
                             <button
                               onClick={() => addMarketToParlay(market, 'no')}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold transition-colors min-w-[80px]"
+                              className="px-4 py-2 bg-red-600/20 backdrop-blur-xl border border-red-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-red-600/30 hover:border-red-500/40 min-w-[80px]"
                             >
                               NO
                               <div className="text-xs opacity-80">{(market.noPrice * 100).toFixed(0)}¢</div>
@@ -298,24 +298,24 @@ export default function CreateParlayPage() {
         )}
 
         {/* Market Legs */}
-        <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl">
+        <div className="p-6 bg-neutral-800/50 border border-neutral-700 rounded-xl">
           <div className="mb-4">
             <h2 className="text-xl font-bold">Market Legs</h2>
           </div>
 
           <div className="space-y-4">
             {legs.map((leg, index) => (
-              <div key={index} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+              <div key={index} className="p-4 bg-neutral-900/50 border border-neutral-700 rounded-lg">
                 <div className="flex justify-between items-start mb-3 gap-3">
                   <div className="flex items-center gap-3 flex-1">
                     {leg.image ? (
                       <img
                         src={leg.image}
                         alt={leg.description || 'Market'}
-                        className="w-14 h-14 rounded-lg object-cover bg-gray-700 border border-gray-700 shrink-0"
+                        className="w-14 h-14 rounded-lg object-cover bg-neutral-700 border border-neutral-700 shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-gray-700 border border-gray-700 text-gray-400 text-xl font-bold shrink-0">
+                      <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-neutral-700 border border-neutral-700 text-neutral-400 text-xl font-bold shrink-0">
                         🪧
                       </div>
                     )}
@@ -324,13 +324,13 @@ export default function CreateParlayPage() {
                       value={leg.description}
                       onChange={(e) => updateLeg(index, 'description', e.target.value)}
                       placeholder="Market description"
-                      className="text-sm text-gray-400 bg-transparent border-none outline-none focus:outline-none focus:bg-gray-800/50 px-2 py-1 rounded flex-1 transition-colors"
+                      className="text-sm text-neutral-400 bg-transparent border-none outline-none focus:outline-none focus:bg-neutral-800/50 px-2 py-1 rounded flex-1 transition-colors"
                     />
                   </div>
                   {legs.length > 1 && (
                     <button
                       onClick={() => removeLeg(index)}
-                      className="text-red-500 hover:text-red-400 text-sm shrink-0"
+                      className="px-3 py-1.5 text-red-500 hover:text-red-400 text-sm shrink-0 bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-red-500/20 hover:border-red-500/30"
                     >
                       Remove
                     </button>
@@ -339,7 +339,7 @@ export default function CreateParlayPage() {
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">
+                    <label className="block text-sm text-neutral-400 mb-1">
                       Leg Name *
                     </label>
                     <input
@@ -347,12 +347,12 @@ export default function CreateParlayPage() {
                       value={leg.name}
                       onChange={(e) => updateLeg(index, 'name', e.target.value)}
                       placeholder="Enter a name for this leg"
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">
+                    <label className="block text-sm text-neutral-400 mb-1">
                       Polymarket Condition ID (bytes32)
                     </label>
                     <input
@@ -360,18 +360,18 @@ export default function CreateParlayPage() {
                       value={leg.conditionId}
                       onChange={(e) => updateLeg(index, 'conditionId', e.target.value)}
                       placeholder="0x1234..."
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">
+                    <label className="block text-sm text-neutral-400 mb-1">
                       Required Outcome for Parlay Win
                     </label>
                     <select
                       value={leg.requiredOutcome}
                       onChange={(e) => updateLeg(index, 'requiredOutcome', parseInt(e.target.value))}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                     >
                       <option value={0}>NO</option>
                       <option value={1}>YES</option>
@@ -385,13 +385,13 @@ export default function CreateParlayPage() {
           <div className="flex gap-4 mt-6">
             <button
               onClick={() => setShowMarketBrowser(true)}
-              className="w-1/2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors"
+              className="w-1/2 px-4 py-2 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40"
             >
               📊 Browse Markets
             </button>
             <button
               onClick={addLeg}
-              className="w-1/2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
+              className="w-1/2 px-4 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40"
             >
               + Manual Entry
             </button>
@@ -399,13 +399,13 @@ export default function CreateParlayPage() {
         </div>
 
         {/* Collateral & Terms */}
-        <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl">
+        <div className="p-6 bg-neutral-800/50 border border-neutral-700 rounded-xl">
           <h2 className="text-xl font-bold mb-4">Collateral & Terms</h2>
 
           <div className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-neutral-400 mb-1">
                   Your Stake (FLR)
                 </label>
                 <input
@@ -414,12 +414,12 @@ export default function CreateParlayPage() {
                   value={makerStake}
                   onChange={(e) => setMakerStake(e.target.value)}
                   placeholder="10.0"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1">
+                <label className="block text-sm text-neutral-400 mb-1">
                   Taker Stake (FLR)
                 </label>
                 <input
@@ -428,13 +428,13 @@ export default function CreateParlayPage() {
                   value={takerStake}
                   onChange={(e) => setTakerStake(e.target.value)}
                   placeholder="10.0"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-neutral-400 mb-1">
                 Your Position
               </label>
               <div className="flex gap-4">
@@ -460,7 +460,7 @@ export default function CreateParlayPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-neutral-400 mb-1">
                 Expiry (days from now if unfilled)
               </label>
               <input
@@ -468,13 +468,13 @@ export default function CreateParlayPage() {
                 value={expiryDays}
                 onChange={(e) => setExpiryDays(e.target.value)}
                 min="1"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
 
             {makerStake && takerStake && (
               <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <div className="text-sm text-gray-400 mb-1">Total Pot:</div>
+                <div className="text-sm text-neutral-400 mb-1">Total Pot:</div>
                 <div className="text-2xl font-bold text-blue-500">
                   {(parseFloat(makerStake) + parseFloat(takerStake)).toFixed(2)} FLR
                 </div>
@@ -487,7 +487,7 @@ export default function CreateParlayPage() {
         <button
           onClick={handleCreate}
           disabled={isCreating}
-          className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-bold text-lg transition-colors"
+          className="w-full py-4 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-bold text-lg transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
         >
           {isCreating ? 'Creating Parlay...' : isConnected ? 'Create Parlay' : 'Connect Wallet to Create'}
         </button>

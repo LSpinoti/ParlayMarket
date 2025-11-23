@@ -148,33 +148,33 @@ export default function ParlayDetailPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="px-4 py-2 text-neutral-400 hover:text-white bg-white/5 backdrop-blur-xl border border-white/10 rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-white/10 hover:border-white/20"
         >
           ← Back
         </button>
       </div>
 
-      <div className="p-8 bg-gray-800/50 border border-gray-700 rounded-xl">
+      <div className="p-8 bg-neutral-800/50 border border-neutral-700 rounded-xl">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">
               {parlay.name || `Parlay #${parlay.id}`}
             </h1>
-            <span className={`px-4 py-2 rounded-full text-sm font-semibold inline-block ${
+            <span className={`px-4 py-2 rounded-full text-sm font-semibold inline-block backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] ${
               status === 'Created' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
               status === 'Filled' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
               status === 'Resolved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
-              'bg-gray-500/10 text-gray-500 border border-gray-500/20'
+              'bg-neutral-500/10 text-neutral-500 border border-neutral-500/20'
             }`}>
               {displayStatus}
             </span>
           </div>
           <div className="text-right">
-            <div className="text-gray-400 text-sm">Total Pot</div>
+            <div className="text-neutral-400 text-sm">Total Pot</div>
             <div className="text-3xl font-bold">{formatEther(totalPayout)} FLR</div>
           </div>
         </div>
@@ -190,13 +190,13 @@ export default function ParlayDetailPage() {
           <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-gray-300 text-sm mb-1">Your Position</div>
+                <div className="text-neutral-300 text-sm mb-1">Your Position</div>
                 <div className="text-lg font-semibold text-white">
                   You are on the <span className={`font-bold ${
                     userSide === 'YES' ? 'text-green-400' : 'text-red-400'
                   }`}>{userSide}</span> side
-                  {isMaker && <span className="text-gray-400 text-sm ml-2">(Maker)</span>}
-                  {isTaker && <span className="text-gray-400 text-sm ml-2">(Taker)</span>}
+                  {isMaker && <span className="text-neutral-400 text-sm ml-2">(Maker)</span>}
+                  {isTaker && <span className="text-neutral-400 text-sm ml-2">(Taker)</span>}
                 </div>
               </div>
               <div className={`px-4 py-2 rounded-lg font-bold text-lg ${
@@ -215,10 +215,10 @@ export default function ParlayDetailPage() {
           <div className={`p-4 rounded-lg border ${
             isMaker 
               ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' 
-              : 'bg-gray-900/50 border-gray-700'
+              : 'bg-neutral-900/50 border-neutral-700'
           }`}>
             <div className="flex items-center justify-between mb-1">
-              <div className="text-gray-400 text-sm">Maker {parlay.makerIsYes ? '(YES)' : '(NO)'}</div>
+              <div className="text-neutral-400 text-sm">Maker {parlay.makerIsYes ? '(YES)' : '(NO)'}</div>
               {isMaker && (
                 <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   You
@@ -232,10 +232,10 @@ export default function ParlayDetailPage() {
           <div className={`p-4 rounded-lg border ${
             isTaker 
               ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' 
-              : 'bg-gray-900/50 border-gray-700'
+              : 'bg-neutral-900/50 border-neutral-700'
           }`}>
             <div className="flex items-center justify-between mb-1">
-              <div className="text-gray-400 text-sm">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
+              <div className="text-neutral-400 text-sm">Taker {parlay.makerIsYes ? '(NO)' : '(YES)'}</div>
               {isTaker && (
                 <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   You
@@ -257,14 +257,14 @@ export default function ParlayDetailPage() {
               const imageUrl = parlay.imageUrls?.[idx];
               const legName = parlay.legNames?.[idx] || '';
               return (
-                <div key={idx} className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+                <div key={idx} className="p-4 bg-neutral-900/50 border border-neutral-700 rounded-lg">
                   <div className="flex gap-4 items-start">
                     {imageUrl && (
                       <div className="flex-shrink-0">
                         <img
                           src={imageUrl}
                           alt={`Market leg ${idx + 1}`}
-                          className="w-20 h-20 rounded-lg object-cover bg-gray-700 border border-gray-600"
+                          className="w-20 h-20 rounded-lg object-cover bg-neutral-700 border border-neutral-600"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
@@ -273,16 +273,16 @@ export default function ParlayDetailPage() {
                     )}
                     <div className="flex-1 flex justify-between items-start">
                       <div>
-                        <div className="text-gray-400 text-sm">Leg {idx + 1}</div>
+                        <div className="text-neutral-400 text-sm">Leg {idx + 1}</div>
                         {legName && (
                           <div className="text-white font-semibold mt-1">{legName}</div>
                         )}
-                        <div className="font-mono text-xs mt-1 text-gray-500">{conditionId}</div>
+                        <div className="font-mono text-xs mt-1 text-neutral-500">{conditionId}</div>
                       </div>
-                      <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      <div className={`px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border ${
                         parlay.requiredOutcomes?.[idx] === 1
-                          ? 'bg-green-500/10 text-green-500'
-                          : 'bg-red-500/10 text-red-500'
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                          : 'bg-red-500/10 text-red-500 border-red-500/20'
                       }`}>
                         Required: {getOutcomeString(parlay.requiredOutcomes?.[idx] || 0)}
                       </div>
@@ -296,8 +296,8 @@ export default function ParlayDetailPage() {
 
         {/* Expiry Info */}
         {status === 'Created' && (
-          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg mb-6">
-            <div className="text-gray-400 text-sm">Expires</div>
+          <div className="p-4 bg-neutral-900/50 border border-neutral-700 rounded-lg mb-6">
+            <div className="text-neutral-400 text-sm">Expires</div>
             <div className={`text-lg font-semibold ${isExpired ? 'text-red-500' : 'text-white'}`}>
               {new Date(parlay.expiry * 1000).toLocaleString()}
               {isExpired && ' (Expired)'}
@@ -313,13 +313,13 @@ export default function ParlayDetailPage() {
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {parlay.yesTokenId && (
-                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
-                  <div className="text-gray-400 text-sm mb-1">YES Token ID</div>
+                <div className="p-3 bg-neutral-900/50 border border-neutral-700 rounded-lg">
+                  <div className="text-neutral-400 text-sm mb-1">YES Token ID</div>
                   <div className="font-mono text-lg font-bold text-green-400 mb-2">#{parlay.yesTokenId}</div>
                   {account?.toLowerCase() === (parlay.makerIsYes ? parlay.maker : parlay.taker).toLowerCase() && (
                     <button
                       onClick={() => handleImportNFT(parlay.yesTokenId!)}
-                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                      className="w-full py-2 px-4 bg-purple-600/20 backdrop-blur-xl border border-purple-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-purple-600/30 hover:border-purple-500/40"
                     >
                       Import to Metamask
                     </button>
@@ -327,13 +327,13 @@ export default function ParlayDetailPage() {
                 </div>
               )}
               {parlay.noTokenId && (
-                <div className="p-3 bg-gray-900/50 border border-gray-700 rounded-lg">
-                  <div className="text-gray-400 text-sm mb-1">NO Token ID</div>
+                <div className="p-3 bg-neutral-900/50 border border-neutral-700 rounded-lg">
+                  <div className="text-neutral-400 text-sm mb-1">NO Token ID</div>
                   <div className="font-mono text-lg font-bold text-red-400 mb-2">#{parlay.noTokenId}</div>
                   {account?.toLowerCase() === (parlay.makerIsYes ? parlay.taker : parlay.maker).toLowerCase() && (
                     <button
                       onClick={() => handleImportNFT(parlay.noTokenId!)}
-                      className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors"
+                      className="w-full py-2 px-4 bg-purple-600/20 backdrop-blur-xl border border-purple-500/30 rounded-full text-sm font-semibold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-purple-600/30 hover:border-purple-500/40"
                     >
                       Import to Metamask
                     </button>
@@ -341,7 +341,7 @@ export default function ParlayDetailPage() {
                 </div>
               )}
             </div>
-            <div className="mt-3 text-xs text-gray-400">
+            <div className="mt-3 text-xs text-neutral-400">
               💡 Tip: Click "Import to Metamask" to add your NFT position to your wallet
             </div>
           </div>
@@ -353,7 +353,7 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleFill}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-green-600/20 backdrop-blur-xl border border-green-500/30 rounded-full font-bold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-green-600/30 hover:border-green-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : `Fill Parlay (${formatEther(parlay.takerStake)} FLR)`}
             </button>
@@ -363,7 +363,7 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleCancel}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-red-600/20 backdrop-blur-xl border border-red-500/30 rounded-full font-bold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-red-600/30 hover:border-red-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : 'Cancel Parlay'}
             </button>
@@ -373,7 +373,7 @@ export default function ParlayDetailPage() {
             <button
               onClick={handleResolve}
               disabled={isProcessing}
-              className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-bold transition-colors"
+              className="flex-1 py-3 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 rounded-full font-bold transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : 'Resolve Parlay'}
             </button>

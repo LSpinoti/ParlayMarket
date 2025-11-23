@@ -36,14 +36,14 @@ export default function AddressDisplay({
 
   return (
     <div className="flex items-center gap-2">
-      {label && <span className="text-gray-400 text-sm">{label}:</span>}
+      {label && <span className="text-neutral-400 text-sm">{label}:</span>}
       
       <span className="font-mono text-sm">{formatAddress(address, chars)}</span>
       
       {showCopy && (
         <button
           onClick={handleCopy}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-neutral-400 hover:text-white transition-colors"
           title="Copy address"
         >
           {copied ? '✓' : '📋'}
@@ -53,7 +53,7 @@ export default function AddressDisplay({
       {showExplorer && (
         <button
           onClick={handleExplorer}
-          className="text-gray-400 hover:text-blue-500 transition-colors"
+          className="text-neutral-400 hover:text-blue-500 transition-colors"
           title="View in explorer"
         >
           🔗

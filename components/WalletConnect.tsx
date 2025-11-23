@@ -43,12 +43,12 @@ export default function WalletConnect() {
       
       {isConnected ? (
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
+          <div className="px-4 py-2 bg-green-500/10 backdrop-blur-xl border border-green-500/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
             <span className="text-green-500 font-mono text-sm">{formatAddress(account!)}</span>
           </div>
           <button
             onClick={disconnect}
-            className="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 hover:bg-red-500/20 transition-colors"
+            className="px-4 py-2 bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-full text-red-500 hover:bg-red-500/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-red-500/30"
           >
             Disconnect
           </button>
@@ -56,7 +56,7 @@ export default function WalletConnect() {
       ) : !hasMetaMask ? (
         <button
           onClick={handleConnect}
-          className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2"
+          className="px-6 py-2 bg-orange-600/20 backdrop-blur-xl border border-orange-500/30 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-orange-600/30 hover:border-orange-500/40 flex items-center gap-2"
         >
           <span>🦊</span>
           <span>Install MetaMask</span>
@@ -65,7 +65,7 @@ export default function WalletConnect() {
         <button
           onClick={handleConnect}
           disabled={isConnecting}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+          className="px-6 py-2 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 text-white font-semibold rounded-full transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-blue-600/30 hover:border-blue-500/40 disabled:bg-neutral-600/20 disabled:border-neutral-600/30 disabled:opacity-50"
         >
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>

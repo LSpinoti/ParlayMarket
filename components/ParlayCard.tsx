@@ -36,26 +36,34 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
     Created: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
     Filled: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
     Resolved: 'bg-green-500/10 text-green-500 border-green-500/20',
-    Cancelled: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
+    Cancelled: 'bg-neutral-500/10 text-neutral-500 border-neutral-500/20',
     Invalid: 'bg-red-500/10 text-red-500 border-red-500/20',
   };
 
   return (
     <Link href={`/parlay/${parlay.id}`}>
-      <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-xl hover:border-blue-500/50 transition-all cursor-pointer">
+      <div className="p-6 bg-neutral-800/50 border border-neutral-700 rounded-xl hover:border-white/30 transition-all cursor-pointer">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-xl font-bold text-white mb-2">
               {parlay.name || `Parlay #${parlay.id}`}
             </h3>
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[status]}`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] ${statusColors[status]}`}>
               {displayStatus}
             </span>
           </div>
-          <div className="text-right">
-            <div className="text-gray-400 text-sm">Total Pot</div>
-            <div className="text-2xl font-bold text-white">{formatEther(totalPayout)} FLR</div>
-          </div>
+          {isInParlay && userSide && (
+            <div className="text-right">
+              <div className="text-neutral-400 text-sm mb-1">Your Position</div>
+              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold inline-block backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] border ${
+                userSide === 'YES' 
+                  ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border-red-500/30'
+              }`}>
+                {userSide}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Market Images */}
@@ -80,9 +88,9 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
                     
                     return (
                       <div key={idx} className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="w-14 h-14 rounded-lg bg-gray-700 border border-gray-600 overflow-hidden flex items-center justify-center flex-shrink-0">
+                        <div className="w-14 h-14 rounded-lg bg-neutral-700 border border-neutral-600 overflow-hidden flex items-center justify-center flex-shrink-0">
                           {showPlaceholder ? (
-                            <div className="text-gray-400 text-xl font-bold">🪧</div>
+                            <div className="text-neutral-400 text-xl font-bold">🪧</div>
                           ) : (
                             <img
                               src={imageUrl}
@@ -94,7 +102,7 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
                             />
                           )}
                         </div>
-                        <div className="text-xs text-gray-300 flex-1 line-clamp-3" title={legName}>
+                        <div className="text-xs text-neutral-300 flex-1 line-clamp-3" title={legName}>
                           {legName}
                         </div>
                       </div>
@@ -102,10 +110,10 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
                   })}
                   {needsDummy && (
                     <div className="flex items-center gap-2 flex-1 min-w-0 invisible">
-                      <div className="w-14 h-14 rounded-lg bg-gray-700 border border-gray-600 overflow-hidden flex items-center justify-center flex-shrink-0">
-                        <div className="text-gray-400 text-xl font-bold">🪧</div>
+                      <div className="w-14 h-14 rounded-lg bg-neutral-700 border border-neutral-600 overflow-hidden flex items-center justify-center flex-shrink-0">
+                        <div className="text-neutral-400 text-xl font-bold">🪧</div>
                       </div>
-                      <div className="text-xs text-gray-300 flex-1 line-clamp-3">
+                      <div className="text-xs text-neutral-300 flex-1 line-clamp-3">
                         Placeholder
                       </div>
                     </div>
@@ -117,29 +125,16 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
         )}
 
         <div className="space-y-1">
-          {isInParlay && userSide && (
-            <div className="flex justify-between items-center text-sm mb-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/30">
-              <span className="text-gray-300">Your Position:</span>
-              <span className={`px-2 py-1 rounded font-semibold ${
-                userSide === 'YES' 
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-              }`}>
-                {userSide}
-              </span>
-            </div>
-          )}
-          
           <div className="grid grid-cols-2 gap-x-8">
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Legs:</span>
+                <span className="text-neutral-400">Legs:</span>
                 <span className="text-white font-semibold">{parlay.conditionIds?.length || 0}</span>
               </div>
 
               {status === 'Created' && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Expires:</span>
+                  <span className="text-neutral-400">Expires:</span>
                   <span className={isExpired ? 'text-red-500' : 'text-white'}>
                     {new Date(parlay.expiry * 1000).toISOString().slice(0, 10)}
                   </span>
@@ -149,12 +144,12 @@ export default function ParlayCard({ parlay }: ParlayCardProps) {
 
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Maker Stake:</span>
+                <span className="text-neutral-400">Maker Stake:</span>
                 <span className="text-white">{formatEther(parlay.makerStake)} FLR</span>
               </div>
 
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Taker Stake:</span>
+                <span className="text-neutral-400">Taker Stake:</span>
                 <span className="text-white">{formatEther(parlay.takerStake)} FLR</span>
               </div>
             </div>
