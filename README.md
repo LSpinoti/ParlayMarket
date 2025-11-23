@@ -1,6 +1,6 @@
 # ParlayMarket
 
-A Flare-based, trust-minimized onramp/offramp and decentralized marketplace for multi-leg parlays using a state channels hub-and-spoke model.
+A Flare-based, trust-minimized platform for creating and settling multi-leg parlays using a state channels hub-and-spoke model.
 
 ---
 
@@ -151,7 +151,6 @@ graph LR
 The codebase is modular and easy to extend:
 
 - **Add new oracle sources**: Implement `IPolymarketOracle` interface
-- **Add trading features**: Extend `ParlayToken` with marketplace logic
 - **Add filters/search**: Enhance `browse/page.tsx` with filters
 - **Add analytics**: Create dashboard pages with stats
 
@@ -233,7 +232,6 @@ Before mainnet deployment:
 - ✅ Cancellation mechanism
 
 ### v2 (Future)
-- [ ] Order book for secondary trading
 - [ ] Partial fills (split positions)
 - [ ] Dynamic odds adjustment
 - [ ] Batch parlay creation

@@ -28,7 +28,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const config = FDC_CONFIGS[network];
+    // Validate network type
+    const validNetwork: 'coston2' | 'flare' = network === 'flare' ? 'flare' : 'coston2';
+    const config = FDC_CONFIGS[validNetwork];
 
     // Create attestation requests for each condition
     const requests = conditionIds.map((conditionId: string) => {
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
       success: true,
         requestId,
         status: 'pending',
-      network,
+      network: validNetwork,
         conditionIds,
         votingRound: fdcData.votingRound,
         estimatedFinalization: Date.now() + (config.finalizationTime * 1000),
