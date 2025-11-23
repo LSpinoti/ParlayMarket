@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 import { createAttestationResponse, encodePolymarketResponse } from '@/lib/fdc-encoder';
-import { CONTRACT_ADDRESSES } from '@/lib/contracts';
+import { CONTRACT_ADDRESSES, ChainName } from '@/lib/contracts';
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { conditionIds, network = 'coston2' } = body;
+
+    // Validate network parameter
+    const validatedNetwork: ChainName = (network === 'flare' || network === 'coston2') ? network : 'coston2';
 
     if (!conditionIds || !Array.isArray(conditionIds) || conditionIds.length === 0) {
       return NextResponse.json(
@@ -101,7 +104,7 @@ export async function POST(request: NextRequest) {
         successful: successful.length,
         failed: failed.length,
       },
-      oracleAddress: CONTRACT_ADDRESSES[network].FlarePolymarketOracle,
+      oracleAddress: CONTRACT_ADDRESSES[validatedNetwork].FlarePolymarketOracle,
       message: 'Resolution data fetched. Submit to oracle using setOutcomesBatch() for testing, or submitOutcome() with FDC proof for production.',
       instructions: {
         testing: 'Call oracle.setOutcomesBatch(conditionIds, outcomes) as owner',
