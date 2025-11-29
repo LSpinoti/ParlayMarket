@@ -1,0 +1,235 @@
+\documentclass[10pt]{extarticle}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[pdftex]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.2in}
+\addtolength{\topmargin}{-.620in}
+\addtolength{\textheight}{1.5in}
+\setlength{\footskip}{3.60004pt}
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+\fontsize{11}{11}\selectfont
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-6pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+\usepackage{accsupp}
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item\small{
+    \textbf{#1}{: #2 \vspace{-2pt}}
+  }
+}
+\newcommand\midtilde%
+{%
+  \expandafter\in@\expandafter{\f@family}%
+    {cmr,cmss,cmtt,cmm,cmsy,cmx,%
+    lmr,lmss,lmtt,lmm,lmsy,lmx,%
+    pxr,pxss,pxm,pxsy,pxx,%
+    txr,txss,txm,txsy,txx}%
+  \ifin@%
+    \midtilde@raisedtilde%
+  \else%
+    \expandafter\in@\expandafter{\f@family}%
+    {pxtt,txtt}%
+    \ifin@%
+      \midtilde@raisedtilde[.35]%
+    \else%
+      \midtilde@normaltilde%
+    \fi%
+  \fi%
+}
+
+
+\newcommand{\resumeProjectHeading}[2]{
+    \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeItemNH}[1]{
+  \item\small{
+    {#1 \vspace{-1.6pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeEdu}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+\newcommand{\resumeSubItem}[2]{\resumeItemNH{#1}{#2}\vspace{-6pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*,label={}]}
+\newcommand{\resumeSubHeadingListStartBullets}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\vspace{-2pt}\end{itemize}}
+
+\usepackage{array}
+\makeatletter
+\newcommand\HUGE{\@setfontsize\Huge{38}{47}} 
+\newcolumntype{L}{>{\hb@xt@\z@\bgroup}l<{\hss\egroup}}
+\newcolumntype{C}{>{\centering\arraybackslash}c}
+\newcolumntype{R}{>{\hb@xt@\z@\bgroup\hss}r<{\egroup}}
+\makeatother
+%-------------------------------------------
+%%%%%%  CV STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+%----------HEADING-----------------
+\begin{tabular*}{\textwidth}{L@{\extracolsep{\fill}}C@{\extracolsep{\fill}}R}
+  \href{mailto:lspinoti@uwaterloo.ca}{lspinoti@uwaterloo.ca} &
+  \multirow{2}{*}{\Huge \textbf{Luka Spinoti}} &
+  \href{https://github.com/LSpinoti}{github.com/LSpinoti} \\
+  289-923-9162 & &
+  \href{https://linkedin.com/in/-luka/}{linkedin.com/in/-luka}
+  
+  
+\end{tabular*}
+\vspace{-7pt}
+
+
+  \section{Education}
+  \resumeSubHeadingListStart
+    \resumeEdu
+      {University of Waterloo}{Waterloo, ON}
+      {Bachelor of Computer Science --- \textup{CGPA: \textbf{3.98}/4.00}}{Sept. 2024 -- Present}
+  \resumeSubHeadingListEnd
+%--------PROGRAMMING SKILLS------------
+\section{Skills}
+  \resumeSubHeadingListStart
+    \resumeSubItem{\textbf{Languages}}
+      {TypeScript, JavaScript, Python, C++, C, Solidity, Cairo, SQL, Java, Kotlin, HTML/CSS, Unix Shell, Haskell}
+    \resumeSubItem{\textbf{Technologies}}
+      {React, Next.js, Node.js, Docker, AWS (EC2, ECS, Lambda), PyTorch, TensorFlow, NumPy, Azure, GCP, Git, Linux}
+  \resumeSubHeadingListEnd
+\vspace{-3pt}
+
+
+
+\section{Work Experience}
+  \resumeSubHeadingListStart
+  \resumeSubheading
+      {Boost Collective}{Toronto, ON}
+      {Software Engineer}{May 2025 -- Aug. 2025}
+        \resumeItemListStart
+        \resumeItemNH{Migrated core platform from \textbf{Next.js} to \textbf{Dockerized AWS ECS microservices}, implementing \textbf{FastAPI (Python)} to improve scalability and enable mobile platform integration}
+        \resumeItemNH{Built \textbf{responsive landing pages} using \textbf{React} and \textbf{TailwindCSS}, translating designs directly from \textbf{Figma} to production}
+        \resumeItemNH{Developed using \textbf{Stripe's API} to manage subscriptions, retrieve payment data, and configure event-driven webhooks}
+        \resumeItemNH{Enhanced \textbf{SEO performance} by optimizing media delivery, incorporating structured data, and improving accessibility}
+        \resumeItemNH{Built an end-to-end \textbf{A/B testing} platform to monitor changes in click-through rate, conversion rate, order value, and MRR}
+        \resumeItemNH{Integrated YouTube Data API to streamline checkout flow, increasing conversion rate \textbf{17\%} and raising AOV by \textbf{24\%}.}
+        \resumeItemNH{Identified and resolved a \textbf{two-year-old vulnerability} which would enable an attacker to manipulate price paid at checkout}
+        \resumeItemNH{Integrated Microsoft Clarity and Triple Whale to capture and analyze user behavior metrics for data-driven insights}
+      \resumeItemListEnd
+  \resumeSubheading
+      {Montreal Retina Institute}{Montreal, QC}
+      {IT Contractor}{July 2024 -- Aug. 2024}
+        \resumeItemListStart
+        \resumeItemNH{Securely erased and decommissioned legacy desktops and servers containing sensitive medical data, following IBM Secure Data Deletion and CCCS IT Media Sanitization standards}
+\resumeItemNH{Supported CEO and staff in deploying and configuring automation tools (Google Workspace, Zapier, Mailchimp, Calendly)}
+\resumeItemNH{Streamlined the installation process for Microsoft Windows 11 across company desktops, completing deployments\textbf{~40\% faster} than projected}
+
+      \resumeItemListEnd
+    \resumeSubheading
+      {Energy Martial Arts}{Pickering, ON}
+      {Camp Leader}{Summer 2021, 2022, 2023, 2024}
+     \resumeItemListStart
+        \resumeItemNH{Led groups of eight to twelve summer camp students through outdoor games and martial arts activities}
+        \resumeItemNH{Provided martial arts, as well as professional, mentorship for new instructors and volunteers}
+        \resumeItemNH{Responded to first-aid situations swiftly and according to protocol}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------EDUCATION-----------------
+\section{Projects}
+    \resumeSubHeadingListStart
+    % \resumeProjectHeading
+    %   {\textbf{Perpetua} $|$ \emph{Cairo, TypeScript}}{Sept. 2025 -- Present}
+    %   \resumeItemListStart
+    %     \resumeItemNH{Architected a native Bitcoin-collateral perpetuals trading platform on Starknet, enabling BTC holders to trade perps without bridging or KYC}
+    %     \resumeItemNH{Integrated Xverse wallet and Sats Connect to enable on-chain Bitcoin authentication, Runes balance display, and BTC signature verification for collateral flows}
+    %     \resumeItemNH{Created a small backend service for market data caching, fee estimation, and off-chain verification to reduce UI latency and improve reliability}
+    %     \resumeItemNH{Proposed and implemented an infrastructural change to the robot, eliminating a \textbf{22\%} strain on costmap accuracy}
+    %   \resumeItemListEnd
+    \resumeProjectHeading
+      {\textbf{ParlayMarket}\textsuperscript{\href{https://ethglobal.com/showcase/parlaymarket-8ycgv}{$\nearrow$}} $|$ \emph{Solidity, TypeScript, Next.js, React, Ethers.js, Hardhat}}{Jan. 2025 -- Present}
+      \resumeItemListStart
+        \resumeItemNH{Built a decentralized parlay betting marketplace on Flare Network with Solidity smart contracts and Next.js frontend}
+        \resumeItemNH{Integrated Flare Data Connector oracle using Merkle proof verification for trust-minimized off-chain data validation}
+        \resumeItemNH{Implemented ERC-721 position tokens with automated settlement, collateral management, and gas-optimized batch operations}
+      \resumeItemListEnd
+    \resumeProjectHeading
+      {\textbf{WATonomous}\textsuperscript{\href{https://github.com/WATonomous}{$\nearrow$}} $|$ \emph{C++, Python, PyTorch, OpenCV, Unreal Engine}}{Jan. 2025 -- Present}
+      \resumeItemListStart
+        \resumeItemNH{Admission Project: Worked in a team of three to implement autonomous navigation on a simulated robot using \textbf{ROS2} in \textbf{C++}}
+        \resumeItemNH{Proposed and implemented an infrastructural change to the robot, eliminating a \textbf{38\%} strain on costmap accuracy}
+        \resumeItemNH{Currently researching perception and world-modeling techniques for humanoid robots}
+      \resumeItemListEnd
+      \resumeProjectHeading
+          {\textbf{FlameOS}\textsuperscript{\href{https://github.com/LSpinoti/FlameOS}{$\nearrow$}} $|$ \emph{C, Assembly, Makefile, Unix Shell, GDB, QEMU}}{Jun. 2022 -- Mar. 2024}
+          \resumeItemListStart
+            \resumeItemNH{Architected and developed a monolithic operating system for UEFI x86\_64 based workstations}
+            \resumeItemNH{Implemented support for reading disks, accessing file systems, playing audio, and viewing images}
+            \resumeItemNH{Debugged using GDB, Valgrind, and QEMU and reverse-engineered compiler output using Ghidra}
+          \resumeItemListEnd
+        \resumeProjectHeading
+            {\textbf{Chronicle}\textsuperscript{\href{https://github.com/itsmarsss/chronicle}{$\nearrow$}} $|$ \emph{DeepSeek, OpenAI API, React, Flask, Python}}{Nov. 2024}
+            \resumeItemListStart
+                \resumeItemNH{Created a React powered web app that rewrites inputted stories from the perspectives of other characters}
+                \resumeItemNH{Used strategies such as input chunking, prompt chaining, and cosine similarity to optimize LLM output}
+                \resumeItemNH{Created an NLP pipeline (spaCy) to build a graph of relationships and sentiments between characters}
+            \resumeItemListEnd
+    \resumeSubHeadingListEnd
+  
+  
+%-----------PROJECTS-----------------
+  
+\section{Awards}
+  \resumeSubHeadingListStart
+  \resumeSubItem{\textbf{University of Waterloo}}
+      {2$\times$ Term Distinction, President's Scholarship of Distinction, Donald Bornhold Scholarship, CCC Distinction}
+    \resumeSubItem{\textbf{St. Mary CSS}}{Class Rank \textbf{1/312}, Governor General's Academic Award, Highest Mark in AP Calculus, Data Mgmt, Physics} 
+  %\resumeSubItem{\textbf{Scholarships}}{KofC Canada, KofC Local, David Bornhold Memorial, Jonah Christensen Memorial}
+  \resumeSubHeadingListEnd
+
+%-------------------------------------------
+\end{document}

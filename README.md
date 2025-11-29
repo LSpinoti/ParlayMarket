@@ -2,6 +2,27 @@
 
 A Flare-based, trust-minimized platform for creating and settling multi-leg parlays using a state channels hub-and-spoke model.
 
+## Demo
+
+https://github.com/LSpinoti/ParlayMarket/blob/main/docs/demo.mp4
+
+## Screenshots
+
+### Home Page
+![Home Page](docs/home.jpg)
+
+### Create Parlay
+![Create Parlay](docs/create.jpg)
+
+### Parlay Inventory
+![Parlay Inventory](docs/inventory.jpg)
+
+### Filled Parlay
+![Filled Parlay](docs/filled.jpg)
+
+### Resolved Parlay
+![Resolved Parlay](docs/resolved.jpg)
+
 ---
 
 ## Overview
