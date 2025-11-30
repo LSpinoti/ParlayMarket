@@ -4,7 +4,7 @@ A Flare-based, trust-minimized platform for creating and settling multi-leg parl
 
 ## Demo
 
-https://github.com/LSpinoti/ParlayMarket/blob/main/docs/demo.mp4
+https://github.com/user-attachments/assets/018d893a-ad63-44b4-907f-8f2d03bea359
 
 ## Screenshots
 
