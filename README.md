@@ -114,40 +114,6 @@ parlaymarket/
     └── deploy.md          # Deployment guide
 ```
 
-## Usage
-
-### 1. Connect Wallet
-
-Click "Connect Wallet" and approve the connection. The app will prompt you to switch to Flare Coston2 testnet.
-
-### 2. Create a Parlay
-
-1. Navigate to **Create Parlay**
-2. Add market legs with UMA IDs (from Polymarket)
-3. Set required outcomes for each market (YES/NO)
-4. Define your stake and taker's stake
-5. Choose your position (YES = all must match, NO = at least one fails)
-6. Set expiry time
-7. Submit transaction
-
-### 3. Browse & Fill Parlays
-
-1. Go to **Browse Parlays**
-2. Click on any open parlay to view details
-3. Click **Fill Parlay** to take the opposite side
-4. Deposit the required taker stake
-
-### 4. View Your Parlays
-
-Navigate to **My Parlays** to see all parlays you've created or filled.
-
-### 5. Settlement
-
-Once all underlying Polymarket markets are resolved:
-1. Go to the parlay detail page
-2. Click **Resolve Parlay**
-3. Winner receives the total pot (maker stake + taker stake)
-
 ## Contract Lifecycle
 
 ```mermaid
@@ -228,54 +194,6 @@ await oracle.setOutcomesBatch([umaId1, umaId2], [1, 0]);
 
 For detailed FDC integration guide, see [Flare FDC Documentation](https://dev.flare.network/fdc/overview).
 
-## Security Considerations
-
-⚠️ **This is a v1 implementation for demonstration purposes.**
-
-Before mainnet deployment:
-- [ ] Security audit by reputable firm
-- [ ] Add comprehensive test suite
-- [ ] Implement pause mechanism
-- [ ] Add access control for admin functions
-- [ ] Gas optimization
-- [x] Replace MockOracle with real Flare Data Connector
-- [ ] Add slippage protection
-- [ ] Implement proper error handling
-- [ ] Set up automated FDC attestation service
-- [ ] Add fallback mechanisms for FDC downtime
-
-## Roadmap
-
-### v1 (Current)
-- ✅ Basic parlay creation and filling
-- ✅ ERC-721 position tokens
-- ✅ Simple resolution via oracle
-- ✅ Cancellation mechanism
-
-### v2 (Future)
-- [ ] Partial fills (split positions)
-- [ ] Dynamic odds adjustment
-- [ ] Batch parlay creation
-- [ ] Advanced filtering and search
-- [ ] Real-time price feeds
-- [ ] Mobile responsive improvements
-
-### v3 (Future)
-- [ ] Cross-chain support
-- [ ] Liquidity pools
-- [ ] Automated market makers for parlays
-- [ ] Social features (following, leaderboards)
-- [ ] Analytics dashboard
-
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file
@@ -287,14 +205,6 @@ MIT License - see [LICENSE](LICENSE) file
 - **UMA Protocol**: https://docs.umaproject.org/
 - **Polymarket**: https://polymarket.com/
 - **Next.js**: https://nextjs.org/docs
-
-## Support
-
-For questions or issues:
-- Open a GitHub issue
-- Join our Discord (coming soon)
-- Check documentation in `/docs` (coming soon)
-
 ---
 
 ## Usage
@@ -304,12 +214,3 @@ For questions or issues:
 3. **Fill a parlay** (as a taker).
 4. **Settle** when the oracle resolves the referenced events.
 5. Position tokens are fully tradable until settlement.
-
----
-
-## Status
-
-- **Branch:** dev2
-- **Network:** Flare Coston2 Testnet
-- **Production Ready:** In development and testing.
-- **See [FEATURES.md] and [TESTING.md] for roadmap and QA scenarios.**
